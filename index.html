@@ -305,7 +305,17 @@
         let salary = 0;
         let payday = null;
         let expenses = [];
-        let today = new Date().toISOString().split('T')[0];
+        
+        // Función para obtener la fecha local en formato YYYY-MM-DD
+        function getLocalDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        let today = getLocalDate();
         let previousMonthData = JSON.parse(localStorage.getItem('previousMonthData')) || null;
         
         // Categorías de gastos
@@ -365,13 +375,21 @@
             return Math.min(Math.max(diffDays, 0), 30);
         }
         
-        // Calcular presupuesto diario recomendado
+        // Función mejorada para calcular el presupuesto diario
         function calculateDailyBudget() {
             const daysPassed = calculateDaysPassed();
             const remainingDays = 30 - daysPassed;
-            const availableBudget = salary * 0.8 - calculateTotalSpent();
+            const availableBudget = salary * 0.8;
+            const totalSpent = calculateTotalSpent();
+            const remainingBudget = availableBudget - totalSpent;
             
-            return remainingDays > 0 ? (availableBudget / remainingDays) : 0;
+            // Si no quedan días o presupuesto, retornar 0
+            if (remainingDays <= 0 || remainingBudget <= 0) return 0;
+            
+            // Calcular el presupuesto diario ajustado
+            const dailyBudget = remainingBudget / remainingDays;
+            
+            return dailyBudget;
         }
         
         // Calcular gastos de hoy
@@ -403,7 +421,8 @@
             displayAvailable.textContent = formatNumber(remainingBudget);
             
             daysPassedElement.textContent = daysPassed;
-            dailyBudgetElement.textContent = formatNumber(Math.round(dailyBudget));
+            // Mostrar con 2 decimales para mayor precisión
+            dailyBudgetElement.textContent = formatNumber(Math.round(dailyBudget * 100) / 100);
             todaySpendingElement.textContent = formatNumber(todaySpending);
             
             progressBar.style.width = `${percentage}%`;
@@ -441,7 +460,7 @@
             if (todaySpending > dailyBudget * 1.2 && dailyBudget > 0) {
                 const alert = document.createElement('div');
                 alert.className = 'alert alert-warning';
-                alert.textContent = `Estás gastando más de lo recomendado hoy. Presupuesto diario: $${formatNumber(Math.round(dailyBudget))}, Gastado hoy: $${formatNumber(todaySpending)}.`;
+                alert.textContent = `Estás gastando más de lo recomendado hoy. Presupuesto diario: $${formatNumber(Math.round(dailyBudget * 100) / 100)}, Gastado hoy: $${formatNumber(todaySpending)}.`;
                 alertContainer.appendChild(alert);
             }
             
@@ -449,7 +468,7 @@
             if (dailyBudget > 0) {
                 const alert = document.createElement('div');
                 alert.className = 'alert alert-info';
-                alert.textContent = `Para mantener tu presupuesto, intenta gastar máximo $${formatNumber(Math.round(dailyBudget))} por día.`;
+                alert.textContent = `Para mantener tu presupuesto, intenta gastar máximo $${formatNumber(Math.round(dailyBudget * 100) / 100)} por día.`;
                 alertContainer.appendChild(alert);
             }
         }
@@ -728,7 +747,7 @@
             controlSection.classList.remove('hidden');
             
             // Configurar fecha de gasto por defecto como hoy
-            expenseDate.value = today;
+            document.getElementById('expense-date').valueAsDate = new Date();
             
             // Actualizar la interfaz
             updateSummary();
@@ -790,7 +809,7 @@
             // Limpiar formulario
             expenseAmount.value = '';
             expenseDescription.value = '';
-            expenseDate.value = today;
+            document.getElementById('expense-date').valueAsDate = new Date();
             
             // Actualizar la interfaz
             renderExpenses();
@@ -801,7 +820,7 @@
         cancelExpenseBtn.addEventListener('click', () => {
             expenseAmount.value = '';
             expenseDescription.value = '';
-            expenseDate.value = today;
+            document.getElementById('expense-date').valueAsDate = new Date();
         });
         
         // Exportar a CSV
@@ -833,7 +852,7 @@
                 controlSection.classList.remove('hidden');
                 
                 // Configurar fecha de gasto por defecto como hoy
-                expenseDate.value = today;
+                document.getElementById('expense-date').valueAsDate = new Date();
                 
                 // Actualizar la interfaz
                 updateSummary();
