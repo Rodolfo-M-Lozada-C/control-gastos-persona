@@ -3,868 +3,2620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Inteligente de Gastos</title>
+    <title>SAE - Sistema de Administración de Expedientes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
+        /* Estilos CSS existentes */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --sidebar-width: 280px;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
             background-color: #f8f9fa;
             color: #343a40;
         }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        input:focus, select:focus {
-            border-color: #28a745;
-            outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-        }
-        button {
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--dark-color);
             color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
+            padding: 20px 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu a i {
             margin-right: 10px;
         }
-        .btn-primary {
-            background-color: #28a745;
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
         }
-        .btn-primary:hover {
-            background-color: #218838;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        .reset-btn {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .reset-btn:hover {
-            background-color: #e0a800;
-        }
-        .alert {
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        .alert-warning {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-        }
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #dee2e6;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #e9ecef;
-        }
-        .progress-container {
-            width: 100%;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .progress-bar {
-            height: 20px;
-            border-radius: 5px;
-            background-color: #28a745;
-            text-align: center;
-            line-height: 20px;
-            color: white;
-        }
-        .summary {
-            background-color: #e2f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .month-summary {
-            background-color: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .hidden {
-            display: none;
-        }
-        .daily-budget {
-            background-color: #e8f5e9;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .delete-btn {
-            background-color: #dc3545;
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-        .expense-form {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
-        .charts-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 30px;
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
         }
-        .chart {
-            flex: 1 1 400px;
-            background: white;
+
+        .badge {
+            font-weight: 500;
+            padding: 5px 10px;
+        }
+
+        .table th {
+            font-weight: 600;
+            border-top: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .plazo-box {
+            background-color: var(--light-color);
             padding: 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .dias-restantes {
+            font-weight: bold;
+        }
+
+        .dias-vencidos {
+            color: var(--danger-color);
+        }
+
+        .dias-vigentes {
+            color: var(--success-color);
+        }
+
+        .dias-proximo-vencer {
+            color: var(--warning-color);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            color: #6c757d;
+        }
+
+        .search-input {
+            padding-left: 40px;
+            border-radius: 50px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stats-card {
+            border-left: 4px solid;
+            padding: 15px;
+        }
+
+        .stats-card .stats-title {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .stats-card .stats-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .stats-card.primary {
+            border-left-color: var(--primary-color);
+        }
+
+        .stats-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stats-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stats-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 10px;
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            border: none;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 3px;
+            cursor: pointer;
+        }
+
+        .action-btn.edit {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+        }
+
+        .action-btn.delete {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .action-btn.view {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        /* Estilos para notificaciones */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            z-index: 1100;
+        }
+        
+        .notification-item {
+            background-color: white;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 15px;
+            overflow: hidden;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid var(--danger-color);
         }
-        .success {
-            color: #28a745;
-            font-weight: bold;
+        
+        .notification-header {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .warning {
-            color: #ffc107;
-            font-weight: bold;
+        
+        .notification-title {
+            font-weight: 600;
+            color: var(--danger-color);
         }
-        .danger {
-            color: #dc3545;
-            font-weight: bold;
+        
+.notification-close {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+        }
+        
+        .notification-body {
+            padding: 15px;
+        }
+        
+        .notification-expediente {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .notification-message {
+            color: #495057;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification-icon {
+            position: relative;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .notification-panel {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .notification-panel-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+        
+        .notification-panel-body {
+            padding: 0;
+        }
+        
+        .notification-panel-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .notification-panel-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .notification-panel-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-panel-empty {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .mark-all-read {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Estilos para la ordenación de tabla */
+        .table th.sortable {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .table th.sortable::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 4px solid transparent;
+            border-top-color: #ccc;
+            border-bottom-color: #ccc;
+            opacity: 0.5;
+        }
+
+        .table th.sortable.asc::after {
+            border-top-color: transparent;
+            border-bottom-color: #333;
+            opacity: 1;
+        }
+
+        .table th.sortable.desc::after {
+            border-top-color: #333;
+            border-bottom-color: transparent;
+            opacity: 1;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                left: calc(-1 * var(--sidebar-width));
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: var(--sidebar-width);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Control Inteligente de Gastos</h1>
-        
-        <div id="setup-section">
-            <div class="form-group">
-                <label for="salary">Monto de tu sueldo ($):</label>
-                <input type="number" id="salary" placeholder="Ej: 2000000" min="0">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4><i class="bi bi-folder"></i> SAE</h4>
+                <small>Sistema de Administración de Expedientes</small>
             </div>
-            
-            <div class="form-group">
-                <label for="payday">Fecha de último pago:</label>
-                <input type="date" id="payday">
-            </div>
-            
-            <button id="start-btn" class="btn-primary">Iniciar Control de Gastos</button>
-            
-            <!-- Sección de resumen del mes anterior -->
-            <div id="previous-month-summary" class="month-summary hidden">
-                <h3>Resumen del Mes Anterior</h3>
-                <p><strong>Presupuesto disponible:</strong> $<span id="previous-budget">0</span></p>
-                <p><strong>Total gastado:</strong> $<span id="previous-spent">0</span></p>
-                <p><strong>Ahorro (20% protegido):</strong> $<span id="previous-savings">0</span></p>
-                <p><strong>Meta cumplida:</strong> <span id="previous-goal-status">-</span></p>
-                <p id="previous-summary-text"></p>
+            <div class="notification-icon" id="notificationIcon">
+                <i class="bi bi-bell" style="font-size: 1.2rem;"></i>
+                <span class="notification-badge d-none" id="notificationBadge">0</span>
+                
+                <div class="notification-panel" id="notificationPanel">
+                    <div class="notification-panel-header">
+                        <span>Notificaciones</span>
+                        <span class="mark-all-read" id="markAllRead">Marcar todas como leídas</span>
+                    </div>
+                    <div class="notification-panel-body" id="notificationPanelBody">
+                        <div class="notification-panel-empty">No hay notificaciones nuevas</div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div id="control-section" class="hidden">
-            <div class="summary">
-                <h3>Resumen Financiero</h3>
-                <p><strong>Sueldo total:</strong> $<span id="display-salary">0</span></p>
-                <p><strong>20% protegido:</strong> $<span id="display-savings">0</span> (no se gasta)</p>
-                <p><strong>Presupuesto disponible (80%):</strong> $<span id="display-budget">0</span></p>
-                <p><strong>Gastado este mes:</strong> $<span id="display-spent">0</span></p>
-                <p><strong>Saldo disponible:</strong> $<span id="display-available">0</span></p>
-                
-                <div class="daily-budget">
-                    <h4>Presupuesto Diario Recomendado</h4>
-                    <p><strong>Días transcurridos:</strong> <span id="days-passed">0</span>/30 días</p>
-                    <p><strong>Gasto diario ideal:</strong> $<span id="daily-budget">0</span></p>
-                    <p><strong>Gasto actual hoy:</strong> $<span id="today-spending">0</span></p>
-                </div>
-                
-                <div class="progress-container">
-                    <div id="progress-bar" class="progress-bar" style="width: 0%">0%</div>
-                </div>
-            </div>
-            
-            <div id="alert-container"></div>
-            
-            <div class="expense-form">
-                <h2>Registrar Nuevo Gasto</h2>
-                <div class="form-group">
-                    <label for="expense-amount">Monto ($):</label>
-                    <input type="number" id="expense-amount" placeholder="Ej: 50000" min="0" step="100">
-                </div>
-                
-                <div class="form-group">
-                    <label for="expense-date">Fecha:</label>
-                    <input type="date" id="expense-date">
-                </div>
-                
-                <div class="form-group">
-                    <label for="expense-category">Categoría:</label>
-                    <select id="expense-category">
-                        <option value="comida">Comida</option>
-                        <option value="transporte">Transporte</option>
-                        <option value="entretenimiento">Entretenimiento</option>
-                        <option value="vivienda">Vivienda</option>
-                        <option value="otros">Otros</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="expense-description">Descripción:</label>
-                    <input type="text" id="expense-description" placeholder="Ej: Almuerzo con amigos">
-                </div>
-                
-                <button id="add-expense-btn" class="btn-primary">Agregar Gasto</button>
-                <button id="cancel-expense-btn" class="btn-secondary">Cancelar</button>
-            </div>
-            
-            <h2>Historial de Gastos</h2>
-            <table id="expenses-table">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Categoría</th>
-                        <th>Descripción</th>
-                        <th>Monto</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="expenses-list">
-                    <!-- Los gastos se agregarán aquí dinámicamente -->
-                </tbody>
-            </table>
-
-            <button id="export-btn" class="btn-secondary">Exportar a CSV</button>
-            
-            <h2>Análisis de Gastos</h2>
-            <div class="charts-container">
-                <div class="chart">
-                    <h3>Distribución por Categoría</h3>
-                    <canvas id="categoryChart" width="400" height="300"></canvas>
-                </div>
-                <div class="chart">
-                    <h3>Gastos por Día</h3>
-                    <canvas id="dailyChart" width="400" height="300"></canvas>
-                </div>
-            </div>
-
-            <button id="reset-btn" class="reset-btn">Reiniciar Mes</button>
+        <div class="sidebar-menu">
+            <a href="#" class="active" data-section="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="#" data-section="registro"><i class="bi bi-file-earmark-plus"></i> Nuevo Expediente</a>
+            <a href="#" data-section="lista"><i class="bi bi-list-ul"></i> Lista de Expedientes</a>
+            <a href="#" data-section="configuracion"><i class="bi bi-gear"></i> Configuración</a>
         </div>
     </div>
 
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <button class="btn btn-primary d-lg-none mb-3" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- Notifications Container -->
+        <div class="notification-container" id="notificationContainer"></div>
+
+        <!-- Dashboard Section -->
+        <div class="section" id="dashboardSection">
+            <h4 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h4>
+            
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stats-card primary">
+                        <div class="stats-title">Expedientes Totales</div>
+                        <div class="stats-value" id="totalExpedientes">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card success">
+                        <div class="stats-title">Cerrados</div>
+                        <div class="stats-value" id="cerradosExpedientes">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card warning">
+                        <div class="stats-title">Por Vencer</div>
+                        <div class="stats-value" id="proximoVencerExpedientes">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card danger">
+                        <div class="stats-title">Vencidos</div>
+                        <div class="stats-value" id="vencidosExpedientes">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-calendar-event"></i> Próximos a Vencer
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="proximosVencerTable">
+                                    <thead>
+                                        <tr>
+                                            <th>N° Expediente</th>
+                                            <th>Razón Social</th>
+                                            <th>Tipo</th>
+                                            <th>Fecha Límite</th>
+                                            <th>Días Restantes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-pie-chart"></i> Distribución por Tipo
+                        </div>
+                        <div class="card-body">
+                            <canvas id="tipoChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registro Section -->
+        <div class="section d-none" id="registroSection">
+            <h4 class="mb-4"><i class="bi bi-file-earmark-plus"></i> Nuevo Expediente</h4>
+            
+            <div class="card">
+                <div class="card-header">
+                    Datos del Expediente
+                </div>
+                <div class="card-body">
+                    <form id="expedienteForm">
+                        <input type="hidden" id="expedienteId">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="numeroExpediente" class="form-label">Número de Expediente</label>
+                                <input type="text" class="form-control" id="numeroExpediente" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="fechaLlegada" class="form-label">Fecha de Llegada</label>
+                                <input type="date" class="form-control" id="fechaLlegada" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="razonSocial" class="form-label">Razón Social</label>
+                            <input type="text" class="form-control" id="razonSocial" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="tipoAtencion" class="form-label">Tipo de Atención</label>
+                                <select class="form-select" id="tipoAtencion" required>
+                                    <option value="">Seleccione un tipo</option>
+                                    <!-- Opciones se cargarán dinámicamente desde JS -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="estadoExpediente" class="form-label">Estado del Expediente</label>
+                                <select class="form-select" id="estadoExpediente" required disabled>
+                                    <option value="">Primero seleccione el tipo de atención</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Plazo de Atención</label>
+                            <div id="plazoAtencion" class="plazo-box">
+                                Seleccione el tipo de atención y estado para ver el plazo
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" id="cancelarRegistro">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                            <!-- Botón de Limpieza -->
+                            <button type="button" class="btn btn-info" id="limpiarFormularioBtn">
+                                <i class="bi bi-eraser"></i> Limpiar Formulario
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="guardarExpediente">
+                                <i class="bi bi-save"></i> Guardar Expediente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista Section -->
+        <div class="section d-none" id="listaSection">
+            <h4 class="mb-4"><i class="bi bi-list-ul"></i> Lista de Expedientes</h4>
+            
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>Registros de Expedientes</div>
+                    <div class="search-container">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control search-input" id="searchInput" placeholder="Buscar expedientes...">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Nuevos filtros de selección -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="filterTipoAtencion" class="form-label">Filtrar por Tipo de Atención</label>
+                            <select class="form-select" id="filterTipoAtencion">
+                                <option value="">Todos los Tipos</option>
+                                <!-- Opciones se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filterEstadoExpediente" class="form-label">Filtrar por Estado del Expediente</label>
+                            <select class="form-select" id="filterEstadoExpediente" disabled>
+                                <option value="">Todos los Estados</option>
+                                <!-- Opciones se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filterDiasRestantes" class="form-label">Filtrar por Días Restantes (Max)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="filterDiasRestantes" placeholder="Ej: 5" min="0">
+                                <button class="btn btn-outline-secondary" type="button" id="clearDiasRestantesFilter">X</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="registrosTable">
+                            <thead>
+                                <tr>
+                                    <th>N° Expediente</th>
+                                    <th>Razón Social</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Llegada</th>
+                                    <th>Plazo</th>
+                                    <th class="sortable" data-column="diasRestantes">Días Restantes</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrosBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="noRegistros" class="text-center py-5">
+                        <i class="bi bi-folder-x" style="font-size: 3rem; color: #6c757d;"></i>
+                        <h5 class="mt-3">No hay registros de expedientes</h5>
+                        <p class="text-muted">Comience agregando un nuevo expediente</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuración Section -->
+        <div class="section d-none" id="configuracionSection">
+            <h4 class="mb-4"><i class="bi bi-gear"></i> Configuración</h4>
+            
+            <div class="card">
+                <div class="card-header">
+                    Configuración del Sistema
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs mb-4" id="configTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#plazosTab">Plazos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#feriadosTab">Feriados</a>
+                        </li>
+                        <!-- Nueva pestaña para Tipos y Estados -->
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tiposEstadosTab">Tipos y Estados</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#exportImportTab">Exportar/Importar Datos</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="plazosTab">
+                            <form id="plazosForm">
+                                <h5 class="mb-3">Configurar Plazos de Atención</h5>
+                                <!-- Los campos de plazos se generarán dinámicamente aquí por JS -->
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Guardar Configuración
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="feriadosTab">
+                            <h5 class="mb-3">Configurar Días Feriados</h5>
+                            <p class="text-muted mb-4">Estos días no serán considerados en el cálculo de plazos.</p>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <label class="form-label">Agregar Nuevo Feriado</label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="date" class="form-control" id="nuevoFeriado">
+                                    <button class="btn btn-primary" type="button" id="agregarFeriado">
+                                        <i class="bi bi-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="feriadosTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Día</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="feriadosBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Nueva pestaña para Tipos y Estados -->
+                        <div class="tab-pane fade" id="tiposEstadosTab">
+                            <h5 class="mb-3">Gestionar Tipos de Atención y Estados</h5>
+                            <p class="text-muted mb-4">Aquí puede agregar, editar o eliminar tipos de atención y sus estados asociados.</p>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <i class="bi bi-tags"></i> Tipos de Atención
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="input-group mb-3">
+                                                <input type="text" class="form-control" id="nuevoTipoAtencionInput" placeholder="Nuevo Tipo de Atención">
+                                                <button class="btn btn-primary" type="button" id="agregarTipoAtencionBtn">
+                                                    <i class="bi bi-plus"></i> Agregar Tipo
+                                                </button>
+                                            </div>
+                                            <ul class="list-group" id="tiposAtencionList">
+                                                <!-- Los tipos se cargarán aquí dinámicamente -->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <i class="bi bi-list-check"></i> Estados del Tipo Seleccionado
+                                        </div>
+                                        <div class="card-body">
+                                            <select class="form-select mb-3" id="selectTipoParaEstados">
+                                                <option value="">Seleccione un Tipo de Atención</option>
+                                                <!-- Los tipos se cargarán aquí para seleccionar -->
+                                            </select>
+                                            <div id="estadosGestionContainer" class="d-none">
+                                                <div class="input-group mb-3">
+                                                    <input type="text" class="form-control" id="nuevoEstadoInput" placeholder="Nuevo Estado">
+                                                    <button class="btn btn-primary" type="button" id="agregarEstadoBtn">
+                                                        <i class="bi bi-plus"></i> Agregar Estado
+                                                    </button>
+                                                </div>
+                                                <ul class="list-group" id="estadosList">
+                                                    <!-- Los estados se cargarán aquí dinámicamente -->
+                                                </ul>
+                                            </div>
+                                            <div id="noTipoSelectedMessage" class="text-muted text-center py-4">
+                                                Seleccione un tipo de atención para gestionar sus estados.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nueva pestaña para Exportar/Importar -->
+                        <div class="tab-pane fade" id="exportImportTab">
+                            <h5 class="mb-3">Exportar e Importar Datos</h5>
+                            <p class="text-muted mb-4">Gestione sus datos de expedientes, plazos y feriados.</p>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <i class="bi bi-download"></i> Exportar Datos
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Exporte todos los datos de expedientes, configuración de plazos y feriados a un archivo JSON.</p>
+                                            <button class="btn btn-success" id="exportDataBtn">
+                                                <i class="bi bi-file-earmark-arrow-down"></i> Exportar Datos
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <i class="bi bi-upload"></i> Importar Datos
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Importe datos desde un archivo JSON. Esto sobrescribirá los datos existentes.</p>
+                                            <input type="file" class="form-control mb-3" id="importFileInput" accept=".json">
+                                            <button class="btn btn-warning" id="importDataBtn">
+                                                <i class="bi bi-file-earmark-arrow-up"></i> Importar Datos
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalle Expediente -->
+    <div class="modal fade" id="detalleExpedienteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Expediente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detalleExpedienteContent">
+                    <!-- Contenido dinámico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación -->
+    <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmacionTitulo">Confirmación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmacionMensaje">
+                    ¿Está seguro que desea eliminar este expediente?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarAccion">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar Tipo/Estado (reutilizable) -->
+    <div class="modal fade" id="editConfigModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editConfigModalTitle">Editar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="editConfigInput" class="form-label">Nuevo Nombre</label>
+                    <input type="text" class="form-control" id="editConfigInput">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveEditConfigBtn">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
-        // Variables globales
-        let salary = 0;
-        let payday = null;
-        let expenses = [];
-        
-        // Función para obtener la fecha local en formato YYYY-MM-DD
-        function getLocalDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-        
-        let today = getLocalDate();
-        let previousMonthData = JSON.parse(localStorage.getItem('previousMonthData')) || null;
-        
-        // Categorías de gastos
-        let categories = {
-            comida: { color: '#ff6b6b', icon: '🍔' },
-            transporte: { color: '#48dbfb', icon: '🚗' },
-            entretenimiento: { color: '#f368e0', icon: '🎬' },
-            vivienda: { color: '#1dd1a1', icon: '🏠' },
-            otros: { color: '#8395a7', icon: '📌' }
+        // =====================================================================
+        // 1. CONFIGURACIÓN GLOBAL Y DATOS INICIALES
+        // =====================================================================
+
+        const CONFIG = {
+            // Ahora, estadosPorTipo se inicializará desde localStorage o con un valor por defecto
+            estadosPorTipo: JSON.parse(localStorage.getItem('estadosPorTipo')) || {
+                ACREDITACION: [
+                    {value: "OBSERVADO", text: "Observado"},
+                    {value: "SOLICITUD_INFO", text: "Solicitud Info"},
+                    {value: "OBSERVADA_SUBSANACION", text: "Observada la subsanación"},
+                    {value: "PROCEDENTE", text: "Procedente"},
+                    {value: "NO_PROCEDENTE", text: "No procedente"}
+                ],
+                BAJAS: [
+                    {value: "PROCEDE", text: "Procede"},
+                    {value: "OBSERVADO", text: "Observado"},
+                    {value: "NO_PROCEDE_SUBSANACION", text: "No procede por subsanación"}
+                ],
+                ROTACIONES: [
+                    {value: "PROCEDE", text: "Procede"},
+                    {value: "OBSERVADO", text: "Observado"},
+                    {value: "NO_PROCEDE_SUBSANACION", text: "No procede por subsanación"}
+                ],
+                MODIFICACIONES: [
+                    {value: "PROCEDE", text: "Procede"},
+                    {value: "OBSERVADO", text: "Observado"},
+                    {value: "NO_PROCEDE_SUBSANACION", text: "No procede por subsanación"}
+                ],
+                AFILIACIONES: [
+                    {value: "PROCEDE", text: "Procede"},
+                    {value: "OBSERVADO", text: "Observado"},
+                    {value: "NO_PROCEDE_SUBSANACION", text: "No procede por subsanación"}
+                ],
+                ACTUALIZACION_CONTRATO: [
+                    {value: "PROCEDE", text: "Procede"},
+                    {value: "OBSERVADO", text: "Observado"},
+                    {value: "NO_PROCEDE_SUBSANACION", text: "No procede por subsanación"}
+                ]
+            },
+            // tipoNombres se generará dinámicamente a partir de estadosPorTipo
+            tipoNombres: {}, 
+            plazosConfig: {}, 
+            feriadosConfig: JSON.parse(localStorage.getItem('feriadosConfig')) || [
+                '2023-01-01', '2023-04-06', '2023-04-07', '2023-05-01', '2023-06-29',
+                '2023-07-28', '2023-07-29', '2023-08-30', '2023-10-08', '2023-11-01',
+                '2023-12-08', '2023-12-25'
+            ],
+            expedientes: JSON.parse(localStorage.getItem('expedientes')) || [],
+            notificaciones: JSON.parse(localStorage.getItem('notificaciones')) || []
         };
-        
-        // Elementos del DOM
-        const setupSection = document.getElementById('setup-section');
-        const controlSection = document.getElementById('control-section');
-        const startBtn = document.getElementById('start-btn');
-        const salaryInput = document.getElementById('salary');
-        const paydayInput = document.getElementById('payday');
-        const addExpenseBtn = document.getElementById('add-expense-btn');
-        const cancelExpenseBtn = document.getElementById('cancel-expense-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const expenseAmount = document.getElementById('expense-amount');
-        const expenseDate = document.getElementById('expense-date');
-        const expenseCategory = document.getElementById('expense-category');
-        const expenseDescription = document.getElementById('expense-description');
-        const expensesList = document.getElementById('expenses-list');
-        const alertContainer = document.getElementById('alert-container');
-        const displaySalary = document.getElementById('display-salary');
-        const displaySavings = document.getElementById('display-savings');
-        const displayBudget = document.getElementById('display-budget');
-        const displaySpent = document.getElementById('display-spent');
-        const displayAvailable = document.getElementById('display-available');
-        const progressBar = document.getElementById('progress-bar');
-        const daysPassedElement = document.getElementById('days-passed');
-        const dailyBudgetElement = document.getElementById('daily-budget');
-        const todaySpendingElement = document.getElementById('today-spending');
-        const previousBudgetElement = document.getElementById('previous-budget');
-        const previousSpentElement = document.getElementById('previous-spent');
-        const previousSavingsElement = document.getElementById('previous-savings');
-        const previousGoalStatusElement = document.getElementById('previous-goal-status');
-        const previousSummaryTextElement = document.getElementById('previous-summary-text');
-        
-        // Formatear número con separadores de miles y 2 decimales
-        function formatNumber(num) {
-            return parseFloat(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-        
-        // Calcular días transcurridos desde el pago
-        function calculateDaysPassed() {
-            if (!payday) return 0;
-            
-            const paydayDate = new Date(payday);
-            const todayDate = new Date();
-            const diffTime = todayDate - paydayDate;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return Math.min(Math.max(diffDays, 0), 30);
-        }
-        
-        // Función mejorada para calcular el presupuesto diario
-        function calculateDailyBudget() {
-            const daysPassed = calculateDaysPassed();
-            const remainingDays = 30 - daysPassed;
-            const availableBudget = salary * 0.8;
-            const totalSpent = calculateTotalSpent();
-            const remainingBudget = availableBudget - totalSpent;
-            
-            // Si no quedan días o presupuesto, retornar 0
-            if (remainingDays <= 0 || remainingBudget <= 0) return 0;
-            
-            // Calcular el presupuesto diario ajustado
-            const dailyBudget = remainingBudget / remainingDays;
-            
-            return dailyBudget;
-        }
-        
-        // Calcular gastos de hoy
-        function calculateTodaySpending() {
-            const todayExpenses = expenses
-                .filter(expense => expense.date === today)
-                .reduce((total, expense) => total + expense.amount, 0);
-            return Math.round(todayExpenses * 100) / 100;
-        }
-        
-        // Calcular total gastado
-        function calculateTotalSpent() {
-            const total = expenses.reduce((total, expense) => total + expense.amount, 0);
-            return Math.round(total * 100) / 100;
-        }
-        
-        // Actualizar resumen
-        function updateSummary() {
-            const totalSpent = calculateTotalSpent();
-            const availableBudget = Math.round(salary * 0.8 * 100) / 100;
-            const remainingBudget = Math.max(Math.round((availableBudget - totalSpent) * 100) / 100, 0);
-            const percentage = Math.min(Math.round((totalSpent / availableBudget) * 100), 100);
-            const daysPassed = calculateDaysPassed();
-            const dailyBudget = Math.round(calculateDailyBudget() * 100) / 100;
-            const todaySpending = calculateTodaySpending();
-            
-            displaySalary.textContent = formatNumber(salary);
-            displaySavings.textContent = formatNumber(Math.round(salary * 0.2 * 100) / 100);
-            displayBudget.textContent = formatNumber(availableBudget);
-            displaySpent.textContent = formatNumber(totalSpent);
-            displayAvailable.textContent = formatNumber(remainingBudget);
-            
-            daysPassedElement.textContent = daysPassed;
-            dailyBudgetElement.textContent = formatNumber(dailyBudget);
-            todaySpendingElement.textContent = formatNumber(todaySpending);
-            
-            progressBar.style.width = `${percentage}%`;
-            progressBar.textContent = `${percentage}%`;
-            
-            // Cambiar color según el porcentaje
-            if (percentage >= 90) {
-                progressBar.style.backgroundColor = '#dc3545';
-            } else if (percentage >= 70) {
-                progressBar.style.backgroundColor = '#ffc107';
-            } else {
-                progressBar.style.backgroundColor = '#28a745';
-            }
-            
-            // Mostrar alertas si es necesario
-            showAlerts(totalSpent, availableBudget, dailyBudget, todaySpending);
-            
-            // Actualizar gráficos
-            renderCharts();
-        }
-        
-        // Mostrar alertas
-        function showAlerts(totalSpent, availableBudget, dailyBudget, todaySpending) {
-            alertContainer.innerHTML = '';
-            
-            // Alerta si se supera el presupuesto disponible (80%)
-            if (totalSpent > availableBudget) {
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-danger';
-                alert.textContent = `¡ALERTA! Has superado tu presupuesto disponible (80% del sueldo). Has gastado $${formatNumber(totalSpent)} de $${formatNumber(availableBudget)} disponibles.`;
-                alertContainer.appendChild(alert);
-            }
-            
-            // Alerta si el gasto de hoy supera el presupuesto diario
-            if (todaySpending > dailyBudget * 1.2 && dailyBudget > 0) {
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-warning';
-                alert.textContent = `Estás gastando más de lo recomendado hoy. Presupuesto diario: $${formatNumber(dailyBudget)}, Gastado hoy: $${formatNumber(todaySpending)}.`;
-                alertContainer.appendChild(alert);
-            }
-            
-            // Consejo sobre el presupuesto diario
-            if (dailyBudget > 0) {
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-info';
-                alert.textContent = `Para mantener tu presupuesto, intenta gastar máximo $${formatNumber(dailyBudget)} por día.`;
-                alertContainer.appendChild(alert);
+
+        // Función para generar tipoNombres a partir de estadosPorTipo
+        function generateTipoNombres() {
+            CONFIG.tipoNombres = {};
+            for (const tipoKey in CONFIG.estadosPorTipo) {
+                // Convertir el key a un formato más legible para el nombre (ej. ACREDITACION -> Acreditación)
+                CONFIG.tipoNombres[tipoKey] = tipoKey.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
             }
         }
-        
-        // Renderizar lista de gastos
-        function renderExpenses() {
-            expensesList.innerHTML = '';
-            
-            // Ordenar gastos por fecha (más recientes primero)
-            const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            sortedExpenses.forEach((expense, index) => {
-                const row = document.createElement('tr');
-                row.style.backgroundColor = categories[expense.category]?.color + '20' || '#ffffff';
-                
-                const dateCell = document.createElement('td');
-                dateCell.textContent = expense.date;
-                
-                const categoryCell = document.createElement('td');
-                categoryCell.textContent = `${categories[expense.category]?.icon || ''} ${expense.category}`;
-                
-                const descCell = document.createElement('td');
-                descCell.textContent = expense.description;
-                
-                const amountCell = document.createElement('td');
-                amountCell.textContent = `$${formatNumber(expense.amount)}`;
-                
-                const actionsCell = document.createElement('td');
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Eliminar';
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.addEventListener('click', () => {
-                    if(confirm(`¿Estás seguro de eliminar este gasto de ${expense.description} por $${expense.amount}?`)) {
-                        expenses = expenses.filter((_, i) => i !== index);
-                        localStorage.setItem('expenses', JSON.stringify(expenses));
-                        renderExpenses();
-                        updateSummary();
+        generateTipoNombres(); // Llamar al inicio para generar los nombres
+
+        // Inicializar plazosConfig con valores por defecto si no existen en localStorage
+        function initializePlazosConfig() {
+            let defaultPlazos = {};
+            for (const tipo in CONFIG.estadosPorTipo) {
+                defaultPlazos[tipo] = {};
+                CONFIG.estadosPorTipo[tipo].forEach(estado => {
+                    if (estado.value.includes('OBSERVADO') || estado.value.includes('SOLICITUD_INFO') || estado.value.includes('SUBSANACION')) {
+                        defaultPlazos[tipo][estado.value] = 10;
+                    } else {
+                        defaultPlazos[tipo][estado.value] = 0;
                     }
                 });
-                
-                actionsCell.appendChild(deleteBtn);
-                row.appendChild(dateCell);
-                row.appendChild(categoryCell);
-                row.appendChild(descCell);
-                row.appendChild(amountCell);
-                row.appendChild(actionsCell);
-                
-                expensesList.appendChild(row);
-            });
-        }
-        
-        // Renderizar gráficos
-        function renderCharts() {
-            // Datos para gráfico por categoría
-            const categoryData = {};
-            expenses.forEach(expense => {
-                categoryData[expense.category] = (categoryData[expense.category] || 0) + expense.amount;
-            });
-            
-            // Datos para gráfico por día
-            const dailyData = {};
-            expenses.forEach(expense => {
-                dailyData[expense.date] = (dailyData[expense.date] || 0) + expense.amount;
-            });
-            
-            // Renderizar gráficos con Chart.js
-            renderPieChart('categoryChart', categoryData);
-            renderBarChart('dailyChart', dailyData);
-        }
-        
-        function renderPieChart(canvasId, data) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
-            
-            // Destruir el gráfico anterior si existe
-            if (canvas.chart) {
-                canvas.chart.destroy();
             }
-            
-            const ctx = canvas.getContext('2d');
-            const labels = Object.keys(data);
-            const values = Object.values(data);
-            const backgroundColors = labels.map(cat => categories[cat]?.color || '#cccccc');
-            
-            canvas.chart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: backgroundColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
+            CONFIG.plazosConfig = JSON.parse(localStorage.getItem('plazosConfig')) || defaultPlazos;
         }
+        initializePlazosConfig();
+
+        // Variables globales de estado
+        let expedienteEditando = null;
+        let confirmacionCallback = null;
+        let intervaloNotificaciones = null;
+        let tipoChartInstance = null;
+        let editConfigModalInstance = null; // Instancia del nuevo modal de edición
+        let currentEditTarget = null; // Para saber qué estamos editando (tipo o estado)
+        let currentEditTypeKey = null; // Para saber a qué tipo pertenece el estado que se edita
         
-        function renderBarChart(canvasId, data) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
-            
-            // Destruir el gráfico anterior si existe
-            if (canvas.chart) {
-                canvas.chart.destroy();
-            }
-            
-            const ctx = canvas.getContext('2d');
-            const labels = Object.keys(data).sort();
-            const values = labels.map(date => data[date]);
-            
-            canvas.chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Gastos por día',
-                        data: values,
-                        backgroundColor: '#28a745',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Exportar a CSV
-        function exportToCSV() {
-            if (expenses.length === 0) {
-                alert('No hay gastos para exportar');
-                return;
-            }
-            
-            const headers = ['Fecha', 'Categoría', 'Descripción', 'Monto'];
-            const csvContent = [
-                headers.join(','),
-                ...expenses.map(expense => 
-                    [expense.date, expense.category, `"${expense.description}"`, expense.amount.toFixed(2)].join(',')
-                )
-            ].join('\n');
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `gastos_${new Date().toISOString().slice(0,10)}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        // Función para reiniciar el mes
-        function resetMonth() {
-            if (expenses.length === 0) {
-                alert("No hay datos para reiniciar. No se han registrado gastos este mes.");
-                return;
-            }
-            
-            if (!confirm("¿Estás seguro de que quieres reiniciar el mes? Esto guardará los datos actuales como mes anterior y comenzará un nuevo ciclo.")) {
-                return;
-            }
-            
-            // Guardar datos del mes anterior
-            const totalSpent = calculateTotalSpent();
-            const availableBudget = Math.round(salary * 0.8 * 100) / 100;
-            const savings = Math.round(salary * 0.2 * 100) / 100;
-            const percentage = Math.min(Math.round((totalSpent / availableBudget) * 100), 100);
-            
-            previousMonthData = {
-                salary: salary,
-                payday: payday,
-                expenses: [...expenses],
-                totalSpent: totalSpent,
-                availableBudget: availableBudget,
-                savings: savings,
-                percentage: percentage,
-                date: today
-            };
-            
-            localStorage.setItem('previousMonthData', JSON.stringify(previousMonthData));
-            
-            // Reiniciar variables para nuevo mes
-            expenses = [];
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            
-            // Actualizar fecha de pago para el nuevo mes
-            const newPayday = new Date(payday);
-            newPayday.setMonth(newPayday.getMonth() + 1);
-            payday = newPayday.toISOString().split('T')[0];
-            paydayInput.value = payday;
-            localStorage.setItem('payday', payday);
-            
-            // Mostrar resumen del mes anterior
-            showPreviousMonthSummary();
-            
-            // Actualizar la interfaz
-            renderExpenses();
-            updateSummary();
-            
-            alert("¡Mes reiniciado con éxito! Los datos del mes anterior han sido guardados.");
-        }
-        
-        // Mostrar resumen del mes anterior
-        function showPreviousMonthSummary() {
-            if (!previousMonthData) return;
-            
-            const summaryContainer = document.getElementById('previous-month-summary');
-            
-            previousBudgetElement.textContent = formatNumber(previousMonthData.availableBudget);
-            previousSpentElement.textContent = formatNumber(previousMonthData.totalSpent);
-            previousSavingsElement.textContent = formatNumber(previousMonthData.savings);
-            
-            // Evaluar cumplimiento de meta
-            if (previousMonthData.percentage <= 80) {
-                previousGoalStatusElement.textContent = "✅ Sí, ¡Felicidades!";
-                previousGoalStatusElement.className = "success";
-                previousSummaryTextElement.textContent = `Lograste gastar solo el ${previousMonthData.percentage}% de tu presupuesto disponible.`;
-                previousSummaryTextElement.className = "success";
-            } else if (previousMonthData.percentage <= 100) {
-                previousGoalStatusElement.textContent = "⚠️ Casi, pero pasaste un poco";
-                previousGoalStatusElement.className = "warning";
-                previousSummaryTextElement.textContent = `Gastaste el ${previousMonthData.percentage}% de tu presupuesto disponible.`;
-                previousSummaryTextElement.className = "warning";
+        // Variables para la ordenación y filtrado de la tabla
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc'; // 'asc' o 'desc'
+
+        // =====================================================================
+        // 2. UTILIDADES DE FECHAS Y CÁLCULOS
+        // =====================================================================
+
+        /**
+         * Normaliza una fecha a inicio del día (00:00:00.000) en la zona horaria local.
+         * Si la entrada es una cadena 'YYYY-MM-DD', la parseamos manualmente para evitar
+         * problemas de zona horaria que ocurren con new Date('YYYY-MM-DD') en algunos navegadores.
+         * @param {Date|string} dateInput - La fecha a normalizar. Puede ser un objeto Date o una cadena 'YYYY-MM-DD'.
+         * @returns {Date} Una nueva instancia de Date normalizada a la zona horaria local.
+         */
+        function normalizeDate(dateInput) {
+            let d;
+            if (typeof dateInput === 'string') {
+                const parts = dateInput.split('-').map(Number);
+                // new Date(year, monthIndex, day) crea la fecha en la zona horaria local.
+                d = new Date(parts[0], parts[1] - 1, parts[2]); 
             } else {
-                previousGoalStatusElement.textContent = "❌ No, superaste el presupuesto";
-                previousGoalStatusElement.className = "danger";
-                previousSummaryTextElement.textContent = `Superaste tu presupuesto en un ${previousMonthData.percentage-100}%.`;
-                previousSummaryTextElement.className = "danger";
+                d = new Date(dateInput);
+            }
+            d.setHours(0, 0, 0, 0); // Normaliza a la medianoche del día local
+            return d;
+        }
+
+        /**
+         * Calcula la fecha límite de un expediente considerando días hábiles y feriados.
+         * @param {string} fechaInicioStr - Fecha de inicio en formato 'YYYY-MM-DD'.
+         * @param {number} plazoDias - Número de días hábiles de plazo.
+         * @param {string[]} feriados - Array de fechas de feriados en formato 'YYYY-MM-DD'.
+         * @returns {Date} La fecha límite calculada.
+         */
+        function calcularFechaLimite(fechaInicioStr, plazoDias, feriados) {
+            let fecha = normalizeDate(fechaInicioStr);
+            
+            // Si el plazo es 0, la fecha límite es la fecha de inicio
+            if (plazoDias === 0) {
+                return fecha;
+            }
+
+            // Convertir feriados a un Set de timestamps normalizados para búsqueda eficiente
+            const feriadosSet = new Set(feriados.map(f => normalizeDate(f).getTime()));
+            let diasContados = 0;
+            
+            // Avanzar la fecha hasta encontrar el número de días hábiles
+            while (diasContados < plazoDias) {
+                fecha.setDate(fecha.getDate() + 1); // Avanzar un día
+                const diaSemana = fecha.getDay(); // 0 = Domingo, 6 = Sábado
+                const fechaTime = fecha.getTime(); // Timestamp del día actual normalizado
+                
+                // Si es día hábil (lunes a viernes) y no es feriado
+                if (diaSemana !== 0 && diaSemana !== 6 && !feriadosSet.has(fechaTime)) {
+                    diasContados++;
+                }
+            }
+            return fecha;
+        }
+
+        /**
+         * Calcula los días hábiles restantes o vencidos para un expediente.
+         * @param {string} fechaLlegadaStr - Fecha de llegada en formato 'YYYY-MM-DD'.
+         * @param {number} plazoDias - Número de días hábiles de plazo.
+         * @param {string[]} feriados - Array de fechas de feriados en formato 'YYYY-MM-DD'.
+         * @returns {number} Días restantes (positivo), 0 si vence hoy, o días vencidos (negativo).
+         */
+        function calcularDiasRestantes(fechaLlegadaStr, plazoDias, feriados) {
+            const hoy = normalizeDate(new Date());
+            
+            if (plazoDias === 0) {
+                return 0; // Expediente cerrado, 0 días restantes
+            }
+
+            const fechaLimite = calcularFechaLimite(fechaLlegadaStr, plazoDias, feriados);
+            
+            // Si la fecha límite ya pasó
+            if (hoy.getTime() > fechaLimite.getTime()) {
+                let diasVencidos = 0;
+                let tempDate = new Date(fechaLimite);
+                tempDate.setDate(tempDate.getDate() + 1); // Empezar a contar desde el día siguiente a la fecha límite
+
+                const feriadosSet = new Set(feriados.map(f => normalizeDate(f).getTime()));
+
+                while (tempDate.getTime() <= hoy.getTime()) {
+                    const day = tempDate.getDay();
+                    const tempDateTime = normalizeDate(tempDate).getTime();
+                    if (day !== 0 && day !== 6 && !feriadosSet.has(tempDateTime)) {
+                        diasVencidos++;
+                    }
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+                return -diasVencidos;
+            } else { // Si la fecha límite aún no ha llegado o es hoy
+                let diasRestantes = 0;
+                let tempDate = new Date(hoy);
+
+                const feriadosSet = new Set(feriados.map(f => normalizeDate(f).getTime()));
+
+                while (tempDate.getTime() <= fechaLimite.getTime()) {
+                    const day = tempDate.getDay();
+                    const tempDateTime = normalizeDate(tempDate).getTime();
+                    if (day !== 0 && day !== 6 && !feriadosSet.has(tempDateTime)) {
+                        diasRestantes++;
+                    }
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+                // Si la fecha límite es hoy, quedan 0 días restantes.
+                // Si la fecha límite es mañana, quedan 1 día restante, etc.
+                return diasRestantes - 1; 
+            }
+        }
+
+        // =====================================================================
+        // 3. GESTIÓN DE DATOS (LOCALSTORAGE)
+        // =====================================================================
+
+        /**
+         * Guarda un expediente en localStorage.
+         * @param {object} expediente - El objeto expediente a guardar.
+         * @returns {boolean} True si se guardó/actualizó correctamente, false en caso contrario.
+         */
+        function guardarExpediente(expediente) {
+            let expedientes = CONFIG.expedientes;
+            
+            if (expedienteEditando) {
+                const index = expedientes.findIndex(exp => exp.id === expediente.id);
+                if (index !== -1) {
+                    expediente.fechaRegistro = expedientes[index].fechaRegistro; // Mantener fecha de registro original
+                    expediente.fechaModificacion = new Date().toISOString();
+                    expedientes[index] = expediente;
+                } else {
+                    return false; // No se encontró el expediente a actualizar
+                }
+            } else {
+                expediente.id = Date.now().toString();
+                expediente.fechaRegistro = new Date().toISOString();
+                expediente.fechaModificacion = new Date().toISOString();
+                expedientes.push(expediente);
+            }
+            localStorage.setItem('expedientes', JSON.stringify(expedientes));
+            CONFIG.expedientes = expedientes; // Actualizar la variable global
+            return true;
+        }
+
+        /**
+         * Elimina un expediente de localStorage.
+         * @param {string} id - ID del expediente a eliminar.
+         */
+        function eliminarExpediente(id) {
+            let expedientes = CONFIG.expedientes.filter(exp => exp.id !== id);
+            localStorage.setItem('expedientes', JSON.stringify(expedientes));
+            CONFIG.expedientes = expedientes; // Actualizar la variable global
+            mostrarNotificacion(`Expediente eliminado correctamente`, 'success');
+            applyFilters(); // Usar applyFilters para recargar la tabla
+            actualizarEstadisticas();
+            DOM.confirmacionModal.hide();
+        }
+
+        /**
+         * Guarda la configuración de plazos en localStorage.
+         */
+        function guardarConfiguracionPlazos() {
+            // Iterar sobre cada tipo de atención
+            for (const tipo in CONFIG.estadosPorTipo) {
+                if (!CONFIG.plazosConfig[tipo]) {
+                    CONFIG.plazosConfig[tipo] = {};
+                }
+                // Iterar sobre cada estado para ese tipo
+                CONFIG.estadosPorTipo[tipo].forEach(estado => {
+                    const inputId = `plazo_${tipo}_${estado.value}`;
+                    const inputElement = document.getElementById(inputId);
+                    if (inputElement) {
+                        CONFIG.plazosConfig[tipo][estado.value] = parseInt(inputElement.value) || 0;
+                    }
+                });
             }
             
-            summaryContainer.classList.remove('hidden');
+            localStorage.setItem('plazosConfig', JSON.stringify(CONFIG.plazosConfig));
+            mostrarNotificacion('Configuración de plazos guardada correctamente', 'success');
+            actualizarEstadisticas(); // Recalcular estadísticas con nuevos plazos
+        }
+
+        /**
+         * Agrega un feriado a la configuración y lo guarda en localStorage.
+         */
+        function agregarFeriado() {
+            const fecha = DOM.nuevoFeriadoInput.value; // Esto ya es 'YYYY-MM-DD'
+            if (!fecha) {
+                mostrarNotificacion('Seleccione una fecha válida', 'error');
+                return;
+            }
+            // Normalizar la fecha para la comparación y almacenamiento
+            const normalizedFecha = normalizeDate(fecha).toISOString().split('T')[0];
+
+            if (CONFIG.feriadosConfig.includes(normalizedFecha)) {
+                mostrarNotificacion('Esta fecha ya está registrada como feriado', 'warning');
+                return;
+            }
+            
+            CONFIG.feriadosConfig.push(normalizedFecha);
+            localStorage.setItem('feriadosConfig', JSON.stringify(CONFIG.feriadosConfig));
+            mostrarNotificacion('Feriado agregado correctamente', 'success');
+            cargarFeriados();
+            DOM.nuevoFeriadoInput.value = '';
+            actualizarEstadisticas(); // Recalcular estadísticas con nuevos feriados
+        }
+
+        /**
+         * Elimina un feriado de la configuración y lo guarda en localStorage.
+         * @param {number} index - Índice del feriado a eliminar.
+         */
+        function eliminarFeriado(index) {
+            CONFIG.feriadosConfig.splice(index, 1);
+            localStorage.setItem('feriadosConfig', JSON.stringify(CONFIG.feriadosConfig));
+            mostrarNotificacion('Feriado eliminado correctamente', 'success');
+            cargarFeriados();
+            actualizarEstadisticas(); // Recalcular estadísticas con nuevos feriados
+        }
+
+        /**
+         * Guarda la configuración de tipos y estados en localStorage.
+         */
+        function guardarTiposEstados() {
+            localStorage.setItem('estadosPorTipo', JSON.stringify(CONFIG.estadosPorTipo));
+            generateTipoNombres(); // Regenerar nombres legibles
+            mostrarNotificacion('Tipos y estados guardados correctamente', 'success');
+            // Recargar la UI que depende de estos datos
+            cargarTiposAtencion();
+            cargarEstadosPorTipoGestion();
+            cargarTiposAtencionEnRegistro(); // Para el formulario de registro
+            cargarFiltroTiposAtencion(); // Para los filtros de la lista
+            actualizarEstadisticas(); // Por si algún expediente se ve afectado
+        }
+
+        // =====================================================================
+        // 4. MANIPULACIÓN DEL DOM Y UI
+        // =====================================================================
+
+        // Referencias a elementos del DOM para evitar múltiples consultas
+        const DOM = {
+            tipoAtencionSelect: document.getElementById('tipoAtencion'),
+            estadoExpedienteSelect: document.getElementById('estadoExpediente'),
+            plazoAtencionDiv: document.getElementById('plazoAtencion'),
+            expedienteForm: document.getElementById('expedienteForm'),
+            registrosBody: document.getElementById('registrosBody'),
+            noRegistrosDiv: document.getElementById('noRegistros'),
+            searchInput: document.getElementById('searchInput'),
+            sidebar: document.getElementById('sidebar'),
+            mainContent: document.getElementById('mainContent'),
+            sidebarToggle: document.getElementById('sidebarToggle'),
+            sections: document.querySelectorAll('.section'),
+            // sidebarLinks: document.querySelectorAll('.sidebar-menu a'), // Ya no se usa directamente
+            sidebarMenuContainer: document.querySelector('.sidebar-menu'), // Nuevo: Contenedor de los enlaces
+            cancelarRegistroBtn: document.getElementById('cancelarRegistro'),
+            limpiarFormularioBtn: document.getElementById('limpiarFormularioBtn'), // Nuevo
+            plazosForm: document.getElementById('plazosForm'),
+            nuevoFeriadoInput: document.getElementById('nuevoFeriado'),
+            agregarFeriadoBtn: document.getElementById('agregarFeriado'),
+            feriadosBody: document.getElementById('feriadosBody'),
+            detalleExpedienteModal: new bootstrap.Modal(document.getElementById('detalleExpedienteModal')),
+            confirmacionModal: new bootstrap.Modal(document.getElementById('confirmacionModal')),
+            notificationIcon: document.getElementById('notificationIcon'),
+            notificationBadge: document.getElementById('notificationBadge'),
+            notificationPanel: document.getElementById('notificationPanel'),
+            notificationPanelBody: document.getElementById('notificationPanelBody'),
+            markAllRead: document.getElementById('markAllRead'),
+            notificationContainer: document.getElementById('notificationContainer'),
+            // Dashboard stats
+            totalExpedientes: document.getElementById('totalExpedientes'),
+            cerradosExpedientes: document.getElementById('cerradosExpedientes'),
+            proximoVencerExpedientes: document.getElementById('proximoVencerExpedientes'),
+            vencidosExpedientes: document.getElementById('vencidosExpedientes'),
+            proximosVencerTable: document.getElementById('proximosVencerTable').querySelector('tbody'),
+            tipoChart: document.getElementById('tipoChart'),
+            // Export/Import
+            exportDataBtn: document.getElementById('exportDataBtn'), // Nuevo
+            importFileInput: document.getElementById('importFileInput'), // Nuevo
+            importDataBtn: document.getElementById('importDataBtn'), // Nuevo
+            // Nuevas referencias para Tipos y Estados
+            nuevoTipoAtencionInput: document.getElementById('nuevoTipoAtencionInput'),
+            agregarTipoAtencionBtn: document.getElementById('agregarTipoAtencionBtn'),
+            tiposAtencionList: document.getElementById('tiposAtencionList'),
+            selectTipoParaEstados: document.getElementById('selectTipoParaEstados'),
+            estadosGestionContainer: document.getElementById('estadosGestionContainer'),
+            noTipoSelectedMessage: document.getElementById('noTipoSelectedMessage'),
+            nuevoEstadoInput: document.getElementById('nuevoEstadoInput'),
+            agregarEstadoBtn: document.getElementById('agregarEstadoBtn'),
+            estadosList: document.getElementById('estadosList'),
+            editConfigModal: document.getElementById('editConfigModal'),
+            editConfigModalTitle: document.getElementById('editConfigModalTitle'),
+            editConfigInput: document.getElementById('editConfigInput'),
+            saveEditConfigBtn: document.getElementById('saveEditConfigBtn'),
+            // Nuevas referencias para filtros
+            filterTipoAtencion: document.getElementById('filterTipoAtencion'),
+            filterEstadoExpediente: document.getElementById('filterEstadoExpediente'),
+            filterDiasRestantes: document.getElementById('filterDiasRestantes'), // Nuevo
+            clearDiasRestantesFilterBtn: document.getElementById('clearDiasRestantesFilter'), // Nuevo
+            diasRestantesHeader: document.querySelector('#registrosTable th[data-column="diasRestantes"]') // Nuevo
+        };
+
+        // Inicializar la instancia del modal de edición
+        editConfigModalInstance = new bootstrap.Modal(DOM.editConfigModal);
+
+        /**
+         * Muestra una notificación Toastify.
+         * @param {string} mensaje - Mensaje a mostrar.
+         * @param {string} tipo - Tipo de notificación ('success', 'error', 'warning').
+         */
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            let background = '';
+            switch(tipo) {
+                case 'success': background = 'linear-gradient(to right, #00b09b, #96c93d)'; break;
+                case 'error': background = 'linear-gradient(to right, #ff416c, #ff4b2b)'; break;
+                case 'warning': background = 'linear-gradient(to right, #f7971e, #ffd200)'; break;
+                default: background = 'linear-gradient(to right, #00b09b, #96c93d)';
+            }
+            Toastify({
+                text: mensaje, duration: 3000, close: true, gravity: "top",
+                position: "right", backgroundColor: background, stopOnFocus: true
+            }).showToast();
+        }
+
+        /**
+         * Muestra una sección específica de la aplicación.
+         * @param {string} sectionId - ID de la sección a mostrar (e.g., 'dashboard', 'registro').
+         */
+        function mostrarSeccion(sectionId) {
+            DOM.sections.forEach(section => section.classList.add('d-none'));
+            document.getElementById(`${sectionId}Section`).classList.remove('d-none');
+            
+            // Actualizar la clase 'active' en los enlaces de la barra lateral
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a'); // Obtenerlos aquí para asegurar que estén actualizados
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === sectionId) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Acciones específicas al cambiar de sección
+            if (sectionId === 'dashboard') {
+                actualizarEstadisticas();
+            } else if (sectionId === 'lista') {
+                applyFilters(); // Usar applyFilters para recargar la tabla con los filtros actuales
+                cargarFiltroTiposAtencion(); // Asegurarse de que los filtros estén poblados
+            } else if (sectionId === 'registro' && !expedienteEditando) {
+                limpiarFormulario();
+                // Recargar los tipos de atención en el formulario de registro
+                cargarTiposAtencionEnRegistro();
+            } else if (sectionId === 'configuracion') {
+                cargarFeriados();
+                cargarConfiguracionPlazos(); // Asegurarse de cargar todos los plazos
+                cargarTiposAtencion(); // Cargar la lista de tipos en la configuración
+                cargarEstadosPorTipoGestion(); // Cargar los estados del tipo seleccionado
+            }
+        }
+
+        /**
+         * Carga los registros de expedientes en la tabla, aplicando filtros y ordenación.
+         * @param {string} searchText - Texto para filtrar por número, razón social, tipo o estado.
+         * @param {string} filterType - Clave del tipo de atención a filtrar.
+         * @param {string} filterState - Valor del estado del expediente a filtrar.
+         * @param {number|null} filterDays - Cantidad máxima de días restantes para filtrar.
+         */
+        function cargarRegistros(searchText = '', filterType = '', filterState = '', filterDays = null) {
+            let expedientesFiltrados = CONFIG.expedientes.map(exp => {
+                // Calcular días restantes para cada expediente y añadirlo temporalmente
+                const diasRestantes = calcularDiasRestantes(exp.fechaLlegada, exp.plazo, CONFIG.feriadosConfig);
+                return { ...exp, _diasRestantesCalculados: diasRestantes };
+            });
+
+            // 1. Filtrar por texto de búsqueda
+            if (searchText) {
+                const searchTerm = searchText.toLowerCase();
+                expedientesFiltrados = expedientesFiltrados.filter(exp => 
+                    exp.numeroExpediente.toLowerCase().includes(searchTerm) ||
+                    exp.razonSocial.toLowerCase().includes(searchTerm) ||
+                    (CONFIG.tipoNombres[exp.tipoAtencion] || exp.tipoAtencion).toLowerCase().includes(searchTerm) ||
+                    (CONFIG.estadosPorTipo[exp.tipoAtencion]?.find(e => e.value === exp.estadoExpediente)?.text || exp.estadoExpediente).toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 2. Filtrar por Tipo de Atención
+            if (filterType) {
+                expedientesFiltrados = expedientesFiltrados.filter(exp => exp.tipoAtencion === filterType);
+            }
+
+            // 3. Filtrar por Estado del Expediente
+            if (filterState) {
+                expedientesFiltrados = expedientesFiltrados.filter(exp => exp.estadoExpediente === filterState);
+            }
+
+            // 4. Filtrar por Días Restantes (máximo)
+            if (filterDays !== null && !isNaN(filterDays)) {
+                expedientesFiltrados = expedientesFiltrados.filter(exp => {
+                    // Solo aplica el filtro a expedientes no cerrados y con días restantes positivos o cero
+                    return exp.plazo !== 0 && exp._diasRestantesCalculados >= 0 && exp._diasRestantesCalculados <= filterDays;
+                });
+            }
+            
+            // 5. Ordenar
+            if (currentSortColumn === 'diasRestantes') {
+                expedientesFiltrados.sort((a, b) => {
+                    let valA = a._diasRestantesCalculados;
+                    let valB = b._diasRestantesCalculados;
+
+                    // Manejar expedientes cerrados (plazo 0) para que aparezcan al final o al principio según la ordenación
+                    if (a.plazo === 0 && b.plazo !== 0) return currentSortDirection === 'asc' ? 1 : -1;
+                    if (a.plazo !== 0 && b.plazo === 0) return currentSortDirection === 'asc' ? -1 : 1;
+                    if (a.plazo === 0 && b.plazo === 0) return 0; // Ambos cerrados, mantener orden relativo
+
+                    return currentSortDirection === 'asc' ? valA - valB : valB - valA;
+                });
+            } else {
+                // Ordenación por defecto si no hay columna de días restantes seleccionada
+                expedientesFiltrados.sort((a, b) => new Date(b.fechaLlegada) - new Date(a.fechaLlegada));
+            }
+
+            // Actualizar clases de ordenación en el encabezado
+            document.querySelectorAll('#registrosTable th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            if (currentSortColumn && DOM.diasRestantesHeader) {
+                DOM.diasRestantesHeader.classList.add(currentSortDirection);
+            }
+            
+            DOM.registrosBody.innerHTML = '';
+            if (expedientesFiltrados.length === 0) {
+                DOM.noRegistrosDiv.style.display = 'block';
+                return;
+            } else {
+                DOM.noRegistrosDiv.style.display = 'none';
+            }
+            
+            expedientesFiltrados.forEach(exp => {
+                const row = document.createElement('tr');
+                const diasRestantes = exp._diasRestantesCalculados; // Usar el valor ya calculado
+                
+                let diasText = '';
+                let badgeClass = '';
+                
+                if (exp.plazo === 0) {
+                    diasText = 'Cerrado';
+                    badgeClass = 'badge bg-success';
+                } else if (diasRestantes < 0) {
+                    diasText = `Vencido (${Math.abs(diasRestantes)} días hábiles)`;
+                    badgeClass = 'badge bg-danger';
+                } else if (diasRestantes <= 3 && diasRestantes >= 0) {
+                    diasText = `${diasRestantes} días hábiles`;
+                    badgeClass = 'badge bg-warning';
+                } else {
+                    diasText = `${diasRestantes} días hábiles`;
+                    badgeClass = 'badge bg-success';
+                }
+                
+                row.innerHTML = `
+                    <td>${exp.numeroExpediente}</td>
+                    <td>${exp.razonSocial}</td>
+                    <td>${CONFIG.tipoNombres[exp.tipoAtencion] || exp.tipoAtencion}</td>
+                    <td>${CONFIG.estadosPorTipo[exp.tipoAtencion]?.find(e => e.value === exp.estadoExpediente)?.text || exp.estadoExpediente}</td>
+                    <td>${normalizeDate(exp.fechaLlegada).toLocaleDateString()}</td>
+                    <td>${exp.plazo} días hábiles</td>
+                    <td><span class="${badgeClass}">${diasText}</span></td>
+                    <td class="text-nowrap">
+                        <span class="action-btn view" data-id="${exp.id}" title="Ver detalle"><i class="bi bi-eye"></i></span>
+                        <span class="action-btn edit" data-id="${exp.id}" title="Editar"><i class="bi bi-pencil"></i></span>
+                        <span class="action-btn delete" data-id="${exp.id}" title="Eliminar"><i class="bi bi-trash"></i></span>
+                    </td>
+                `;
+                DOM.registrosBody.appendChild(row);
+            });
+            
+            // Asignar eventos a los botones de acción
+            DOM.registrosBody.querySelectorAll('.action-btn.view').forEach(btn => btn.addEventListener('click', () => verExpediente(btn.dataset.id)));
+            DOM.registrosBody.querySelectorAll('.action-btn.edit').forEach(btn => btn.addEventListener('click', () => editarExpediente(btn.dataset.id)));
+            DOM.registrosBody.querySelectorAll('.action-btn.delete').forEach(btn => btn.addEventListener('click', () => confirmarEliminacion(btn.dataset.id)));
+        }
+
+        /**
+         * Muestra los detalles de un expediente en un modal.
+         * @param {string} id - ID del expediente.
+         */
+        function verExpediente(id) {
+            const expediente = CONFIG.expedientes.find(exp => exp.id === id);
+            if (!expediente) {
+                mostrarNotificacion('Expediente no encontrado', 'error');
+                return;
+            }
+            
+            const diasRestantes = calcularDiasRestantes(expediente.fechaLlegada, expediente.plazo, CONFIG.feriadosConfig);
+            const fechaLimite = calcularFechaLimite(expediente.fechaLlegada, expediente.plazo, CONFIG.feriadosConfig);
+            
+            let estadoPlazoHtml = '';
+            if (expediente.plazo === 0) {
+                estadoPlazoHtml = '<span class="badge bg-success">Cerrado</span>';
+            } else if (diasRestantes < 0) {
+                estadoPlazoHtml = `<span class="badge bg-danger">Vencido (${Math.abs(diasRestantes)} días hábiles)</span>`;
+            } else if (diasRestantes === 0) {
+                estadoPlazoHtml = `<span class="badge bg-warning">Vence hoy</span>`;
+            } else {
+                estadoPlazoHtml = `<span class="badge bg-success">${diasRestantes} días hábiles restantes</span>`;
+            }
+            
+            const content = `
+                <div class="row mb-3">
+                    <div class="col-md-6"><h6>Número de Expediente</h6><p>${expediente.numeroExpediente}</p></div>
+                    <div class="col-md-6"><h6>Razón Social</h6><p>${expediente.razonSocial}</p></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6"><h6>Tipo de Atención</h6><p>${CONFIG.tipoNombres[expediente.tipoAtencion] || expediente.tipoAtencion}</p></div>
+                    <div class="col-md-6"><h6>Estado</h6><p>${CONFIG.estadosPorTipo[expediente.tipoAtencion]?.find(e => e.value === expediente.estadoExpediente)?.text || expediente.estadoExpediente}</p></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6"><h6>Fecha de Llegada</h6><p>${normalizeDate(expediente.fechaLlegada).toLocaleDateString()}</p></div>
+                    <div class="col-md-6"><h6>Plazo de Atención</h6><p>${expediente.plazo} días hábiles</p></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6"><h6>Fecha Límite</h6><p>${fechaLimite.toLocaleDateString()}</p></div>
+                    <div class="col-md-6"><h6>Estado del Plazo</h6><p>${estadoPlazoHtml}</p></div>
+                </div>
+                <div class="mb-3"><h6>Observaciones</h6><p>${expediente.observaciones || 'Ninguna'}</p></div>
+                <div class="row">
+                    <div class="col-md-6"><h6>Fecha de Registro</h6><p>${new Date(expediente.fechaRegistro).toLocaleString()}</p></div>
+                    <div class="col-md-6"><h6>Última Modificación</h6><p>${new Date(expediente.fechaModificacion).toLocaleString()}</p></div>
+                </div>
+            `;
+            document.getElementById('detalleExpedienteContent').innerHTML = content;
+            DOM.detalleExpedienteModal.show();
+        }
+
+        /**
+         * Carga los datos de un expediente en el formulario para edición.
+         * @param {string} id - ID del expediente a editar.
+         */
+        function editarExpediente(id) {
+            expedienteEditando = CONFIG.expedientes.find(exp => exp.id === id);
+            if (!expedienteEditando) {
+                mostrarNotificacion('Expediente no encontrado', 'error');
+                return;
+            }
+            mostrarSeccion('registro');
+            document.getElementById('expedienteId').value = expedienteEditando.id;
+            document.getElementById('numeroExpediente').value = expedienteEditando.numeroExpediente;
+            document.getElementById('fechaLlegada').value = expedienteEditando.fechaLlegada; // Ya está en YYYY-MM-DD
+            document.getElementById('razonSocial').value = expedienteEditando.razonSocial;
+            
+            // Cargar tipos y seleccionar el correcto
+            cargarTiposAtencionEnRegistro();
+            DOM.tipoAtencionSelect.value = expedienteEditando.tipoAtencion;
+            
+            // Cargar estados y seleccionar el correcto
+            cargarEstadosPorTipo();
+            DOM.estadoExpedienteSelect.value = expedienteEditando.estadoExpediente;
+            
+            document.getElementById('observaciones').value = expedienteEditando.observaciones || '';
+            actualizarPlazoAtencion();
+            document.getElementById('guardarExpediente').innerHTML = '<i class="bi bi-save"></i> Actualizar Expediente';
+        }
+
+        /**
+         * Muestra un modal de confirmación para una acción.
+         * @param {string} id - ID del elemento afectado.
+         */
+        function confirmarEliminacion(id) {
+            const expediente = CONFIG.expedientes.find(exp => exp.id === id);
+            if (!expediente) {
+                mostrarNotificacion('Expediente no encontrado', 'error');
+                return;
+            }
+            document.getElementById('confirmacionTitulo').textContent = 'Confirmar Eliminación';
+            document.getElementById('confirmacionMensaje').innerHTML = `
+                ¿Está seguro que desea eliminar el expediente <strong>${expediente.numeroExpediente}</strong>?
+                <br><br><strong>Razón Social:</strong> ${expediente.razonSocial}
+            `;
+            confirmacionCallback = () => eliminarExpediente(id);
+            DOM.confirmacionModal.show();
+        }
+
+        /**
+         * Limpia el formulario de registro de expedientes.
+         */
+        function limpiarFormulario() {
+            document.getElementById('expedienteId').value = '';
+            document.getElementById('numeroExpediente').value = '';
+            document.getElementById('fechaLlegada').value = new Date().toISOString().split('T')[0];
+            document.getElementById('razonSocial').value = '';
+            DOM.tipoAtencionSelect.value = '';
+            DOM.estadoExpedienteSelect.innerHTML = '<option value="">Primero seleccione el tipo de atención</option>';
+            DOM.estadoExpedienteSelect.disabled = true;
+            document.getElementById('observaciones').value = '';
+            DOM.plazoAtencionDiv.textContent = 'Seleccione el tipo de atención y estado para ver el plazo';
+            document.getElementById('guardarExpediente').innerHTML = '<i class="bi bi-save"></i> Guardar Expediente';
+            expedienteEditando = null;
+            cargarTiposAtencionEnRegistro(); // Asegurarse de que los tipos estén cargados
+        }
+
+        /**
+         * Actualiza el texto del plazo de atención en el formulario.
+         */
+        function actualizarPlazoAtencion() {
+            const tipo = DOM.tipoAtencionSelect.value;
+            const estado = DOM.estadoExpedienteSelect.value;
+            
+            if (tipo && estado && CONFIG.plazosConfig[tipo] && CONFIG.plazosConfig[tipo][estado] !== undefined) {
+                const plazo = CONFIG.plazosConfig[tipo][estado];
+                DOM.plazoAtencionDiv.textContent = plazo === 0 ? 
+                    'El expediente se cierra el mismo día (plazo: 0 días hábiles)' : 
+                    `Plazo de atención: ${plazo} días hábiles`;
+            } else {
+                DOM.plazoAtencionDiv.textContent = 'Seleccione el tipo de atención y estado para ver el plazo';
+            }
+        }
+
+        /**
+         * Carga las opciones de estado en el select de estado del expediente
+         * basándose en el tipo de atención seleccionado en el formulario de registro.
+         */
+        function cargarEstadosPorTipo() {
+            const tipoSeleccionado = DOM.tipoAtencionSelect.value;
+            DOM.estadoExpedienteSelect.disabled = !tipoSeleccionado;
+            DOM.estadoExpedienteSelect.innerHTML = '<option value="">Seleccione un estado</option>';
+            
+            if (tipoSeleccionado && CONFIG.estadosPorTipo[tipoSeleccionado]) {
+                CONFIG.estadosPorTipo[tipoSeleccionado].forEach(estado => {
+                    const option = document.createElement('option');
+                    option.value = estado.value;
+                    option.textContent = estado.text;
+                    DOM.estadoExpedienteSelect.appendChild(option);
+                });
+            }
+            actualizarPlazoAtencion();
+        }
+
+        /**
+         * Carga los tipos de atención en el select del formulario de registro.
+         */
+        function cargarTiposAtencionEnRegistro() {
+            DOM.tipoAtencionSelect.innerHTML = '<option value="">Seleccione un tipo</option>';
+            const tipoKeys = Object.keys(CONFIG.estadosPorTipo).sort();
+            tipoKeys.forEach(tipoKey => {
+                const option = document.createElement('option');
+                option.value = tipoKey;
+                option.textContent = CONFIG.tipoNombres[tipoKey];
+                DOM.tipoAtencionSelect.appendChild(option);
+            });
+            // También limpiar y deshabilitar el select de estado
+            DOM.estadoExpedienteSelect.innerHTML = '<option value="">Primero seleccione el tipo de atención</option>';
+            DOM.estadoExpedienteSelect.disabled = true;
+            actualizarPlazoAtencion();
+        }
+
+        /**
+         * Carga la configuración de plazos en el formulario de configuración.
+         */
+        function cargarConfiguracionPlazos() {
+            // Limpiar el contenido actual del formulario de plazos
+            const plazosForm = document.getElementById('plazosForm');
+            // Guardar el botón de submit para reinsertarlo al final
+            const submitButtonDiv = plazosForm.querySelector('.d-flex.justify-content-end.mt-4');
+            plazosForm.innerHTML = '<h5 class="mb-3">Configurar Plazos de Atención</h5>';
+
+            // Iterar sobre cada tipo de atención dinámicamente
+            const tipoKeys = Object.keys(CONFIG.estadosPorTipo).sort();
+            tipoKeys.forEach(tipoKey => {
+                const tipoNombre = CONFIG.tipoNombres[tipoKey];
+                const tipoDiv = document.createElement('div');
+                tipoDiv.innerHTML = `<h6 class="mt-4 mb-3 text-primary">${tipoNombre.toUpperCase()}</h6><div class="row mb-3"></div>`;
+                const rowDiv = tipoDiv.querySelector('.row');
+
+                CONFIG.estadosPorTipo[tipoKey].forEach(estado => {
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'col-md-6 mb-3'; // Añadir mb-3 para espaciado vertical
+                    colDiv.innerHTML = `
+                        <label class="form-label">${estado.text}</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="plazo_${tipoKey}_${estado.value}" min="0">
+                            <span class="input-group-text">días hábiles</span>
+                        </div>
+                    `;
+                    rowDiv.appendChild(colDiv);
+                });
+                plazosForm.appendChild(tipoDiv);
+            });
+            
+            // Reinsertar el botón de guardar al final
+            if (submitButtonDiv) {
+                plazosForm.appendChild(submitButtonDiv);
+            }
+
+            // Ahora, poblar los valores de los inputs
+            tipoKeys.forEach(tipoKey => {
+                CONFIG.estadosPorTipo[tipoKey].forEach(estado => {
+                    const inputId = `plazo_${tipoKey}_${estado.value}`;
+                    const inputElement = document.getElementById(inputId);
+                    if (inputElement) {
+                        inputElement.value = CONFIG.plazosConfig[tipoKey]?.[estado.value] !== undefined ? 
+                                             CONFIG.plazosConfig[tipoKey][estado.value] : 
+                                             0;
+                    }
+                });
+            });
+        }
+
+        /**
+         * Carga los feriados en la tabla de configuración.
+         */
+        function cargarFeriados() {
+            DOM.feriadosBody.innerHTML = '';
+            if (CONFIG.feriadosConfig.length === 0) {
+                DOM.feriadosBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No hay feriados configurados</td></tr>';
+                return;
+            }
+            CONFIG.feriadosConfig.sort((a, b) => new Date(a) - new Date(b));
+            CONFIG.feriadosConfig.forEach((feriadoStr, index) => {
+                const fecha = normalizeDate(feriadoStr); 
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${fecha.toLocaleDateString()}</td>
+                    <td>${['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][fecha.getDay()]}</td>
+                    <td class="text-nowrap">
+                        <button class="btn btn-sm btn-outline-danger eliminar-feriado" data-index="${index}">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </td>
+                `;
+                DOM.feriadosBody.appendChild(row);
+            });
+            DOM.feriadosBody.querySelectorAll('.eliminar-feriado').forEach(btn => btn.addEventListener('click', () => eliminarFeriado(parseInt(btn.dataset.index))));
+        }
+
+        /**
+         * Carga la lista de tipos de atención en la pestaña de configuración.
+         */
+        function cargarTiposAtencion() {
+            DOM.tiposAtencionList.innerHTML = '';
+            DOM.selectTipoParaEstados.innerHTML = '<option value="">Seleccione un Tipo de Atención</option>';
+
+            const tipoKeys = Object.keys(CONFIG.estadosPorTipo).sort(); // Ordenar alfabéticamente
+            if (tipoKeys.length === 0) {
+                DOM.tiposAtencionList.innerHTML = '<li class="list-group-item text-muted text-center">No hay tipos de atención configurados.</li>';
+                return;
+            }
+
+            tipoKeys.forEach(tipoKey => {
+                const tipoNombre = CONFIG.tipoNombres[tipoKey];
+                
+                // Lista de tipos
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                listItem.innerHTML = `
+                    <span>${tipoNombre}</span>
+                    <div>
+                        <button class="btn btn-sm btn-outline-info edit-tipo-btn me-2" data-key="${tipoKey}" data-name="${tipoNombre}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-tipo-btn" data-key="${tipoKey}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                DOM.tiposAtencionList.appendChild(listItem);
+
+                // Select para gestionar estados
+                const option = document.createElement('option');
+                option.value = tipoKey;
+                option.textContent = tipoNombre;
+                DOM.selectTipoParaEstados.appendChild(option);
+            });
+
+            // Asignar eventos a los botones de editar/eliminar tipo
+            DOM.tiposAtencionList.querySelectorAll('.edit-tipo-btn').forEach(btn => {
+                btn.addEventListener('click', () => editarTipoAtencion(btn.dataset.key, btn.dataset.name));
+            });
+            DOM.tiposAtencionList.querySelectorAll('.delete-tipo-btn').forEach(btn => {
+                btn.addEventListener('click', () => eliminarTipoAtencion(btn.dataset.key));
+            });
+        }
+
+        /**
+         * Carga la lista de estados para el tipo de atención seleccionado en la pestaña de configuración.
+         */
+        function cargarEstadosPorTipoGestion() {
+            const selectedTypeKey = DOM.selectTipoParaEstados.value;
+            DOM.estadosList.innerHTML = '';
+
+            if (!selectedTypeKey) {
+                DOM.estadosGestionContainer.classList.add('d-none');
+                DOM.noTipoSelectedMessage.classList.remove('d-none');
+                return;
+            }
+
+            DOM.estadosGestionContainer.classList.remove('d-none');
+            DOM.noTipoSelectedMessage.classList.add('d-none');
+
+            const estados = CONFIG.estadosPorTipo[selectedTypeKey];
+            if (!estados || estados.length === 0) {
+                DOM.estadosList.innerHTML = '<li class="list-group-item text-muted text-center">No hay estados configurados para este tipo.</li>';
+                return;
+            }
+
+            estados.forEach(estado => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                listItem.innerHTML = `
+                    <span>${estado.text}</span>
+                    <div>
+                        <button class="btn btn-sm btn-outline-info edit-estado-btn me-2" data-type-key="${selectedTypeKey}" data-value="${estado.value}" data-text="${estado.text}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-estado-btn" data-type-key="${selectedTypeKey}" data-value="${estado.value}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                DOM.estadosList.appendChild(listItem);
+            });
+
+            // Asignar eventos a los botones de editar/eliminar estado
+            DOM.estadosList.querySelectorAll('.edit-estado-btn').forEach(btn => {
+                btn.addEventListener('click', () => editarEstado(btn.dataset.typeKey, btn.dataset.value, btn.dataset.text));
+            });
+            DOM.estadosList.querySelectorAll('.delete-estado-btn').forEach(btn => {
+                btn.addEventListener('click', () => eliminarEstado(btn.dataset.typeKey, btn.dataset.value));
+            });
+        }
+
+        /**
+         * Agrega un nuevo tipo de atención.
+         */
+        function agregarTipoAtencion() {
+            const newTypeName = DOM.nuevoTipoAtencionInput.value.trim();
+            if (!newTypeName) {
+                mostrarNotificacion('El nombre del tipo de atención no puede estar vacío.', 'error');
+                return;
+            }
+
+            const newTypeKey = newTypeName.toUpperCase().replace(/ /g, '_');
+            if (CONFIG.estadosPorTipo[newTypeKey]) {
+                mostrarNotificacion('Este tipo de atención ya existe.', 'warning');
+                return;
+            }
+
+            CONFIG.estadosPorTipo[newTypeKey] = []; // Inicializar con un array vacío de estados
+            CONFIG.plazosConfig[newTypeKey] = {}; // Inicializar plazos para el nuevo tipo
+            guardarTiposEstados();
+            guardarConfiguracionPlazos(); // Guardar también los plazos actualizados
+            DOM.nuevoTipoAtencionInput.value = '';
+            mostrarNotificacion(`Tipo "${newTypeName}" agregado.`, 'success');
+            cargarTiposAtencion();
+            cargarConfiguracionPlazos(); // Recargar el formulario de plazos para incluir el nuevo tipo
+            cargarTiposAtencionEnRegistro(); // Actualizar el select en el formulario de registro
+            cargarFiltroTiposAtencion(); // Actualizar el filtro de tipos en la lista
+        }
+
+        /**
+         * Edita un tipo de atención existente.
+         * @param {string} oldKey - La clave actual del tipo.
+         * @param {string} oldName - El nombre actual del tipo.
+         */
+        function editarTipoAtencion(oldKey, oldName) {
+            DOM.editConfigModalTitle.textContent = 'Editar Tipo de Atención';
+            DOM.editConfigInput.value = oldName;
+            currentEditTarget = { type: 'tipo', oldKey: oldKey };
+            editConfigModalInstance.show();
+        }
+
+        /**
+         * Elimina un tipo de atención.
+         * @param {string} typeKey - La clave del tipo a eliminar.
+         */
+        function eliminarTipoAtencion(typeKey) {
+            if (!confirm(`¿Está seguro de que desea eliminar el tipo de atención "${CONFIG.tipoNombres[typeKey]}"? Esto también eliminará todos sus estados y plazos asociados.`)) {
+                return;
+            }
+
+            // Eliminar de estadosPorTipo
+            delete CONFIG.estadosPorTipo[typeKey];
+            // Eliminar de plazosConfig
+            delete CONFIG.plazosConfig[typeKey];
+
+            // Opcional: Actualizar expedientes que usen este tipo.
+            // Esto es una decisión de diseño. Si se elimina un tipo en uso,
+            // los expedientes que lo referencian quedarán con un tipo "inválido".
+            // Una estrategia podría ser reasignarlos a un tipo por defecto o marcarlos.
+            // Por ejemplo:
+            CONFIG.expedientes.forEach(exp => {
+                if (exp.tipoAtencion === typeKey) {
+                    exp.tipoAtencion = ''; // O un valor como 'UNKNOWN'
+                    exp.estadoExpediente = ''; // También limpiar el estado
+                    exp.plazo = 0; // Y el plazo
+                }
+            });
+            localStorage.setItem('expedientes', JSON.stringify(CONFIG.expedientes));
+
+
+            guardarTiposEstados();
+            guardarConfiguracionPlazos();
+            mostrarNotificacion(`Tipo "${CONFIG.tipoNombres[typeKey]}" eliminado.`, 'success');
+            cargarTiposAtencion();
+            cargarEstadosPorTipoGestion(); // Recargar por si el tipo seleccionado fue eliminado
+            cargarConfiguracionPlazos(); // Recargar el formulario de plazos
+            cargarTiposAtencionEnRegistro(); // Actualizar el select en el formulario de registro
+            cargarFiltroTiposAtencion(); // Actualizar el filtro de tipos en la lista
+            actualizarEstadisticas(); // Recalcular estadísticas
+            applyFilters(); // Recargar la lista de expedientes
+        }
+
+        /**
+         * Agrega un nuevo estado al tipo de atención seleccionado.
+         */
+        function agregarEstado() {
+            const selectedTypeKey = DOM.selectTipoParaEstados.value;
+            if (!selectedTypeKey) {
+                mostrarNotificacion('Primero seleccione un tipo de atención.', 'error');
+                return;
+            }
+
+            const newStateText = DOM.nuevoEstadoInput.value.trim();
+            if (!newStateText) {
+                mostrarNotificacion('El nombre del estado no puede estar vacío.', 'error');
+                return;
+            }
+
+            const newStateValue = newStateText.toUpperCase().replace(/ /g, '_');
+            if (CONFIG.estadosPorTipo[selectedTypeKey].some(s => s.value === newStateValue)) {
+                mostrarNotificacion('Este estado ya existe para el tipo seleccionado.', 'warning');
+                return;
+            }
+
+            CONFIG.estadosPorTipo[selectedTypeKey].push({ value: newStateValue, text: newStateText });
+            // Inicializar el plazo para el nuevo estado (por defecto a 0 o un valor predefinido)
+            CONFIG.plazosConfig[selectedTypeKey][newStateValue] = 0; 
+            guardarTiposEstados();
+            guardarConfiguracionPlazos(); // Guardar también los plazos actualizados
+            DOM.nuevoEstadoInput.value = '';
+            mostrarNotificacion(`Estado "${newStateText}" agregado.`, 'success');
+            cargarEstadosPorTipoGestion();
+            cargarConfiguracionPlazos(); // Recargar el formulario de plazos
+            cargarEstadosPorTipo(); // Actualizar el select de estados en el formulario de registro
+            cargarFiltroEstadosExpediente(); // Actualizar el filtro de estados en la lista
+        }
+
+        /**
+         * Edita un estado existente.
+         * @param {string} typeKey - La clave del tipo al que pertenece el estado.
+         * @param {string} oldValue - El valor actual del estado.
+         * @param {string} oldText - El texto actual del estado.
+         */
+        function editarEstado(typeKey, oldValue, oldText) {
+            DOM.editConfigModalTitle.textContent = 'Editar Estado';
+            DOM.editConfigInput.value = oldText;
+            currentEditTarget = { type: 'estado', typeKey: typeKey, oldValue: oldValue };
+            editConfigModalInstance.show();
+        }
+
+        /**
+         * Elimina un estado de un tipo de atención.
+         * @param {string} typeKey - La clave del tipo al que pertenece el estado.
+         * @param {string} stateValue - El valor del estado a eliminar.
+         */
+        function eliminarEstado(typeKey, stateValue) {
+            const stateText = CONFIG.estadosPorTipo[typeKey].find(s => s.value === stateValue)?.text;
+            if (!confirm(`¿Está seguro de que desea eliminar el estado "${stateText}" del tipo "${CONFIG.tipoNombres[typeKey]}"?`)) {
+                return;
+            }
+
+            CONFIG.estadosPorTipo[typeKey] = CONFIG.estadosPorTipo[typeKey].filter(s => s.value !== stateValue);
+            // Eliminar el plazo asociado a este estado
+            if (CONFIG.plazosConfig[typeKey]) {
+                delete CONFIG.plazosConfig[typeKey][stateValue];
+            }
+
+            // Opcional: Actualizar expedientes que usen este estado.
+            CONFIG.expedientes.forEach(exp => {
+                if (exp.tipoAtencion === typeKey && exp.estadoExpediente === stateValue) {
+                    exp.estadoExpediente = ''; // O un valor como 'UNKNOWN'
+                    exp.plazo = 0; // Y el plazo
+                }
+            });
+            localStorage.setItem('expedientes', JSON.stringify(CONFIG.expedientes));
+
+            guardarTiposEstados();
+            guardarConfiguracionPlazos();
+            mostrarNotificacion(`Estado "${stateText}" eliminado.`, 'success');
+            cargarEstadosPorTipoGestion();
+            cargarConfiguracionPlazos(); // Recargar el formulario de plazos
+            cargarEstadosPorTipo(); // Actualizar el select de estados en el formulario de registro
+            cargarFiltroEstadosExpediente(); // Actualizar el filtro de estados en la lista
+            actualizarEstadisticas(); // Recalcular estadísticas
+            applyFilters(); // Recargar la lista de expedientes
+        }
+
+        /**
+         * Carga las opciones para el filtro de Tipo de Atención.
+         */
+        function cargarFiltroTiposAtencion() {
+            DOM.filterTipoAtencion.innerHTML = '<option value="">Todos los Tipos</option>';
+            const tipoKeys = Object.keys(CONFIG.estadosPorTipo).sort();
+            tipoKeys.forEach(tipoKey => {
+                const option = document.createElement('option');
+                option.value = tipoKey;
+                option.textContent = CONFIG.tipoNombres[tipoKey];
+                DOM.filterTipoAtencion.appendChild(option);
+            });
+            // Limpiar y deshabilitar el filtro de estado al cambiar el tipo
+            DOM.filterEstadoExpediente.innerHTML = '<option value="">Todos los Estados</option>';
+            DOM.filterEstadoExpediente.disabled = true;
+        }
+
+        /**
+         * Carga las opciones para el filtro de Estado del Expediente,
+         * basándose en el tipo de atención seleccionado.
+         */
+        function cargarFiltroEstadosExpediente() {
+            const tipoSeleccionado = DOM.filterTipoAtencion.value;
+            DOM.filterEstadoExpediente.innerHTML = '<option value="">Todos los Estados</option>';
+            DOM.filterEstadoExpediente.disabled = !tipoSeleccionado;
+
+            if (tipoSeleccionado && CONFIG.estadosPorTipo[tipoSeleccionado]) {
+                CONFIG.estadosPorTipo[tipoSeleccionado].forEach(estado => {
+                    const option = document.createElement('option');
+                    option.value = estado.value;
+                    option.textContent = estado.text;
+                    DOM.filterEstadoExpediente.appendChild(option);
+                });
+            }
+        }
+
+        // =====================================================================
+        // 5. ESTADÍSTICAS Y GRÁFICOS
+        // =====================================================================
+
+        /**
+         * Actualiza las estadísticas del dashboard y la tabla de próximos a vencer.
+         */
+        function actualizarEstadisticas() {
+            const expedientes = CONFIG.expedientes;
+            let total = expedientes.length;
+            let cerrados = 0;
+            let proximoVencer = 0;
+            let vencidos = 0;
+            let porTipo = {};
+            let proximosVencerList = [];
+            
+            expedientes.forEach(exp => {
+                if (exp.plazo === 0) {
+                    cerrados++;
+                } else {
+                    const diasRestantes = calcularDiasRestantes(exp.fechaLlegada, exp.plazo, CONFIG.feriadosConfig);
+                    if (diasRestantes < 0) {
+                        vencidos++;
+                    } else if (diasRestantes <= 5 && diasRestantes >= 0) {
+                        proximoVencer++;
+                        proximosVencerList.push({...exp, diasRestantes});
+                    }
+                }
+                // Asegurarse de que el tipo exista en tipoNombres antes de usarlo
+                if (CONFIG.tipoNombres[exp.tipoAtencion]) {
+                    porTipo[exp.tipoAtencion] = (porTipo[exp.tipoAtencion] || 0) + 1;
+                }
+            });
+            
+            DOM.totalExpedientes.textContent = total;
+            DOM.cerradosExpedientes.textContent = cerrados;
+            DOM.proximoVencerExpedientes.textContent = proximoVencer;
+            DOM.vencidosExpedientes.textContent = vencidos;
+            
+            DOM.proximosVencerTable.innerHTML = '';
+            proximosVencerList.sort((a, b) => a.diasRestantes - b.diasRestantes);
+            proximosVencerList.slice(0, 5).forEach(exp => {
+                const row = document.createElement('tr');
+                const fechaLimite = calcularFechaLimite(exp.fechaLlegada, exp.plazo, CONFIG.feriadosConfig);
+                let diasText = exp.diasRestantes === 0 ? `Vence hoy` : `${exp.diasRestantes} días hábiles`;
+                let badgeClass = 'badge bg-warning'; // Siempre warning para próximos a vencer
+                row.innerHTML = `
+                    <td>${exp.numeroExpediente}</td>
+                    <td>${exp.razonSocial}</td>
+                    <td>${CONFIG.tipoNombres[exp.tipoAtencion] || exp.tipoAtencion}</td>
+                    <td>${fechaLimite.toLocaleDateString()}</td>
+                    <td><span class="${badgeClass}">${diasText}</span></td>
+                `;
+                DOM.proximosVencerTable.appendChild(row);
+            });
+            
+            actualizarGraficos(porTipo);
+        }
+
+        /**
+         * Actualiza el gráfico de distribución por tipo.
+         * @param {object} porTipo - Objeto con el conteo de expedientes por tipo.
+         */
+        function actualizarGraficos(porTipo) {
+            if (tipoChartInstance) {
+                tipoChartInstance.destroy();
+            }
+            
+            const tipoLabels = Object.keys(porTipo).map(tipo => CONFIG.tipoNombres[tipo] || tipo);
+            const tipoData = Object.values(porTipo);
+            
+            tipoChartInstance = new Chart(DOM.tipoChart.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: tipoLabels,
+                    datasets: [{
+                        data: tipoData,
+                        backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // =====================================================================
+        // 6. SISTEMA DE NOTIFICACIONES
+        // =====================================================================
+
+        /**
+         * Inicializa el sistema de notificaciones.
+         */
+        function initNotificaciones() {
+            actualizarContadorNotificaciones();
+            actualizarPanelNotificaciones();
+            intervaloNotificaciones = setInterval(verificarExpedientesPorVencer, 60000); // Cada minuto
+            verificarExpedientesPorVencer(); // Verificar al inicio
         }
         
-        // Iniciar aplicación
-        startBtn.addEventListener('click', () => {
-            salary = parseFloat(salaryInput.value);
-            payday = paydayInput.value;
-            
-            if (!salary || salary <= 0) {
-                alert('Por favor ingresa un monto de sueldo válido');
-                return;
-            }
-            
-            if (!payday) {
-                alert('Por favor selecciona una fecha de pago');
-                return;
-            }
-            
-            // Guardar en localStorage
-            localStorage.setItem('salary', salary);
-            localStorage.setItem('payday', payday);
-            
-            // Cargar gastos guardados
-            const savedExpenses = localStorage.getItem('expenses');
-            if (savedExpenses) {
-                expenses = JSON.parse(savedExpenses);
-            }
-            
-            // Mostrar sección de control
-            setupSection.classList.add('hidden');
-            controlSection.classList.remove('hidden');
-            
-            // Configurar fecha de gasto por defecto como hoy
-            document.getElementById('expense-date').valueAsDate = new Date();
-            
-            // Actualizar la interfaz
-            updateSummary();
-            renderExpenses();
-        });
+        /**
+         * Verifica expedientes que vencen hoy y crea notificaciones.
+         */
+        function verificarExpedientesPorVencer() {
+            const hoy = normalizeDate(new Date());
+            CONFIG.expedientes.forEach(expediente => {
+                if (expediente.plazo === 0) return;
+                const diasRestantes = calcularDiasRestantes(expediente.fechaLlegada, expediente.plazo, CONFIG.feriadosConfig);
+                if (diasRestantes === 0) {
+                    const notificacionExistente = CONFIG.notificaciones.find(n => 
+                        n.expedienteId === expediente.id && 
+                        normalizeDate(n.fecha).getTime() === hoy.getTime()
+                    );
+                    if (!notificacionExistente) {
+                        crearNotificacion(
+                            expediente.id,
+                            expediente.numeroExpediente,
+                            `El plazo para el expediente ${expediente.numeroExpediente} vence hoy`,
+                            expediente.razonSocial
+                        );
+                    }
+                }
+            });
+        }
         
-        // Agregar nuevo gasto
-        addExpenseBtn.addEventListener('click', () => {
-            const amount = parseFloat(expenseAmount.value);
-            const date = expenseDate.value;
-            const category = expenseCategory.value;
-            const description = expenseDescription.value.trim();
-            
-            if (!amount || amount <= 0) {
-                alert('Por favor ingresa un monto válido');
+        /**
+         * Crea y guarda una nueva notificación.
+         * @param {string} expedienteId - ID del expediente.
+         * @param {string} numeroExpediente - Número del expediente.
+         * @param {string} mensaje - Mensaje de la notificación.
+         * @param {string} razonSocial - Razón social del expediente.
+         */
+        function crearNotificacion(expedienteId, numeroExpediente, mensaje, razonSocial) {
+            const nuevaNotificacion = {
+                id: Date.now().toString(),
+                expedienteId, numeroExpediente, mensaje, razonSocial,
+                fecha: new Date().toISOString(), leida: false
+            };
+            CONFIG.notificaciones.unshift(nuevaNotificacion);
+            localStorage.setItem('notificaciones', JSON.stringify(CONFIG.notificaciones));
+            mostrarNotificacionFlotante(nuevaNotificacion);
+            actualizarContadorNotificaciones();
+            actualizarPanelNotificaciones();
+        }
+        
+        /**
+         * Muestra una notificación flotante en la esquina superior derecha.
+         * @param {object} notificacion - Objeto notificación.
+         */
+        function mostrarNotificacionFlotante(notificacion) {
+            const notificationId = `notif-${notificacion.id}`;
+            const notificationElement = document.createElement('div');
+            notificationElement.id = notificationId;
+            notificationElement.className = 'notification-item';
+            notificationElement.innerHTML = `
+                <div class="notification-header">
+                    <div class="notification-title"><i class="bi bi-exclamation-triangle"></i> Alerta de Plazo</div>
+                    <button class="notification-close" onclick="App.cerrarNotificacionFlotante('${notificationId}', '${notificacion.id}')">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="notification-body">
+                    <div class="notification-expediente">Expediente: ${notificacion.numeroExpediente}</div>
+                    <div class="notification-message">${notificacion.mensaje}</div>
+                    <div class="notification-time">${new Date(notificacion.fecha).toLocaleTimeString()}</div>
+                </div>
+            `;
+            DOM.notificationContainer.appendChild(notificationElement);
+            setTimeout(() => {
+                const element = document.getElementById(notificationId);
+                if (element) { element.style.animation = 'slideIn 0.3s reverse forwards'; setTimeout(() => element.remove(), 300); }
+            }, 10000);
+        }
+        
+        /**
+         * Cierra una notificación flotante y la marca como leída.
+         * Expuesto globalmente para el onclick en el HTML.
+         * @param {string} elementId - ID del elemento HTML de la notificación.
+         * @param {string} notificacionId - ID de la notificación en el array.
+         */
+        window.App = window.App || {}; // Asegura que App exista
+        window.App.cerrarNotificacionFlotante = function(elementId, notificacionId) {
+            const element = document.getElementById(elementId);
+            if (element) { element.style.animation = 'slideIn 0.3s reverse forwards'; setTimeout(() => element.remove(), 300); }
+            marcarComoLeida(notificacionId);
+        };
+
+        /**
+         * Actualiza el contador de notificaciones no leídas.
+         */
+        function actualizarContadorNotificaciones() {
+            const notificacionesNoLeidasCount = CONFIG.notificaciones.filter(n => !n.leida).length;
+            if (notificacionesNoLeidasCount > 0) {
+                DOM.notificationBadge.textContent = notificacionesNoLeidasCount > 9 ? '9+' : notificacionesNoLeidasCount;
+                DOM.notificationBadge.classList.remove('d-none');
+            } else {
+                DOM.notificationBadge.classList.add('d-none');
+            }
+        }
+        
+        /**
+         * Actualiza el contenido del panel de notificaciones.
+         */
+        function actualizarPanelNotificaciones() {
+            DOM.notificationPanelBody.innerHTML = '';
+            if (CONFIG.notificaciones.length === 0) {
+                DOM.notificationPanelBody.innerHTML = '<div class="notification-panel-empty">No hay notificaciones</div>';
                 return;
             }
-            
-            if (!date) {
-                alert('Por favor selecciona una fecha');
+            CONFIG.notificaciones.slice(0, 10).forEach(notif => {
+                const notifElement = document.createElement('div');
+                notifElement.className = `notification-panel-item ${notif.leida ? '' : 'unread'}`;
+                notifElement.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <strong>${notif.numeroExpediente}</strong>
+                        <small>${new Date(notif.fecha).toLocaleTimeString()}</small>
+                    </div>
+                    <div class="notification-message">${notif.mensaje}</div>
+                    <div class="notification-time">${notif.razonSocial}</div>
+                `;
+                notifElement.addEventListener('click', () => {
+                    marcarComoLeida(notif.id);
+                    verExpediente(notif.expedienteId);
+                    DOM.notificationPanel.style.display = 'none';
+                });
+                DOM.notificationPanelBody.appendChild(notifElement);
+            });
+        }
+        
+        /**
+         * Marca una notificación específica como leída.
+         * @param {string} notificacionId - ID de la notificación a marcar.
+         */
+        function marcarComoLeida(notificacionId) {
+            CONFIG.notificaciones = CONFIG.notificaciones.map(n => n.id === notificacionId ? { ...n, leida: true } : n);
+            localStorage.setItem('notificaciones', JSON.stringify(CONFIG.notificaciones));
+            actualizarContadorNotificaciones();
+            actualizarPanelNotificaciones();
+        }
+        
+        /**
+         * Marca todas las notificaciones como leídas.
+         */
+        function marcarTodasComoLeídas() {
+            CONFIG.notificaciones = CONFIG.notificaciones.map(n => ({ ...n, leida: true }));
+            localStorage.setItem('notificaciones', JSON.stringify(CONFIG.notificaciones));
+            actualizarContadorNotificaciones();
+            actualizarPanelNotificaciones();
+        }
+
+        // =====================================================================
+        // 7. EXPORTAR/IMPORTAR DATOS
+        // =====================================================================
+
+        /**
+         * Exporta todos los datos de la aplicación a un archivo JSON.
+         */
+        function exportarDatos() {
+            const dataToExport = {
+                expedientes: CONFIG.expedientes,
+                plazosConfig: CONFIG.plazosConfig,
+                feriadosConfig: CONFIG.feriadosConfig,
+                notificaciones: CONFIG.notificaciones,
+                estadosPorTipo: CONFIG.estadosPorTipo // Incluir la nueva configuración
+            };
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sae_data_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            mostrarNotificacion('Datos exportados correctamente', 'success');
+        }
+
+        /**
+         * Importa datos desde un archivo JSON y los carga en la aplicación.
+         */
+        function importarDatos() {
+            const file = DOM.importFileInput.files[0];
+            if (!file) {
+                mostrarNotificacion('Seleccione un archivo JSON para importar', 'error');
                 return;
             }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    if (!confirm('¿Está seguro de que desea importar estos datos? Esto sobrescribirá todos los datos existentes (expedientes, plazos, feriados, notificaciones, tipos y estados).')) {
+                        return;
+                    }
+
+                    if (importedData.expedientes && Array.isArray(importedData.expedientes)) {
+                        localStorage.setItem('expedientes', JSON.stringify(importedData.expedientes));
+                        CONFIG.expedientes = importedData.expedientes;
+                    }
+                    if (importedData.plazosConfig && typeof importedData.plazosConfig === 'object') {
+                        localStorage.setItem('plazosConfig', JSON.stringify(importedData.plazosConfig));
+                        CONFIG.plazosConfig = importedData.plazosConfig;
+                    }
+                    if (importedData.feriadosConfig && Array.isArray(importedData.feriadosConfig)) {
+                        localStorage.setItem('feriadosConfig', JSON.stringify(importedData.feriadosConfig));
+                        CONFIG.feriadosConfig = importedData.feriadosConfig;
+                    }
+                    if (importedData.notificaciones && Array.isArray(importedData.notificaciones)) {
+                        localStorage.setItem('notificaciones', JSON.stringify(importedData.notificaciones));
+                        CONFIG.notificaciones = importedData.notificaciones;
+                    }
+                    // Importar la nueva configuración de tipos y estados
+                    if (importedData.estadosPorTipo && typeof importedData.estadosPorTipo === 'object') {
+                        localStorage.setItem('estadosPorTipo', JSON.stringify(importedData.estadosPorTipo));
+                        CONFIG.estadosPorTipo = importedData.estadosPorTipo;
+                        generateTipoNombres(); // Regenerar nombres después de importar
+                    }
+
+                    mostrarNotificacion('Datos importados y cargados correctamente. La aplicación se recargará.', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } catch (e) {
+                    console.error('Error al parsear el archivo JSON:', e);
+                    mostrarNotificacion('Error al importar datos: Archivo JSON inválido.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // =====================================================================
+        // 8. INICIALIZACIÓN Y EVENT LISTENERS
+        // =====================================================================
+
+        /**
+         * Inicializa la aplicación.
+         */
+        function init() {
+            DOM.expedienteForm.querySelector('#fechaLlegada').value = new Date().toISOString().split('T')[0];
             
-            if (!description) {
-                alert('Por favor ingresa una descripción');
-                return;
+            // Asegurarse de que los tipos y estados se carguen antes que otras cosas que dependen de ellos
+            generateTipoNombres(); // Asegurar que los nombres estén actualizados
+            initializePlazosConfig(); // Asegurar que los plazos estén inicializados con la nueva estructura
+            
+            cargarRegistros(); // Cargar registros inicialmente sin filtros
+            cargarFeriados();
+            cargarConfiguracionPlazos();
+            actualizarEstadisticas();
+            
+            // Cargar los tipos de atención en el formulario de registro al inicio
+            cargarTiposAtencionEnRegistro();
+            // Cargar los filtros de tipo y estado al inicio
+            cargarFiltroTiposAtencion();
+
+            // Mostrar dashboard por defecto
+            mostrarSeccion('dashboard');
+            
+            initNotificaciones();
+            
+            setupEventListeners();
+
+            // Cargar las listas de tipos y estados al iniciar la configuración
+            // (Estas se cargarán cuando se acceda a la pestaña de configuración)
+            // cargarTiposAtencion();
+            // cargarEstadosPorTipoGestion();
+        }
+
+        /**
+         * Configura todos los event listeners de la aplicación.
+         */
+        function setupEventListeners() {
+            // Navegación de la barra lateral (usando delegación de eventos)
+            DOM.sidebarMenuContainer.addEventListener('click', (e) => {
+                // Asegurarse de que el clic fue en un enlace (<a>) o en un elemento dentro de un enlace
+                const link = e.target.closest('a[data-section]');
+                if (link) {
+                    e.preventDefault(); // Prevenir el comportamiento por defecto del enlace
+                    mostrarSeccion(link.dataset.section);
+                }
+            });
+
+            // Toggle de la barra lateral para móviles
+            DOM.sidebarToggle.addEventListener('click', () => {
+                DOM.sidebar.classList.toggle('active');
+                DOM.mainContent.classList.toggle('active');
+            });
+
+            // Formulario de Expedientes
+            DOM.tipoAtencionSelect.addEventListener('change', cargarEstadosPorTipo);
+            DOM.estadoExpedienteSelect.addEventListener('change', actualizarPlazoAtencion);
+            DOM.expedienteForm.addEventListener('submit', handleExpedienteFormSubmit);
+            DOM.cancelarRegistroBtn.addEventListener('click', () => {
+                limpiarFormulario();
+                mostrarSeccion('lista');
+            });
+            DOM.limpiarFormularioBtn.addEventListener('click', limpiarFormulario); // Evento para el nuevo botón de limpieza
+
+            // Búsqueda de Expedientes
+            DOM.searchInput.addEventListener('input', applyFilters); // Ahora llama a applyFilters
+
+            // Configuración de Plazos
+            DOM.plazosForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                guardarConfiguracionPlazos();
+            });
+
+            // Configuración de Feriados
+            DOM.agregarFeriadoBtn.addEventListener('click', agregarFeriado);
+
+            // Exportar/Importar Datos
+            DOM.exportDataBtn.addEventListener('click', exportarDatos);
+            DOM.importDataBtn.addEventListener('click', importarDatos);
+
+            // Modal de Confirmación
+            document.getElementById('confirmarAccion').addEventListener('click', () => {
+                if (confirmacionCallback) {
+                    confirmacionCallback();
+                    confirmacionCallback = null; // Reset callback
+                }
+            });
+
+            // Notificaciones
+            DOM.notificationIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                DOM.notificationPanel.style.display = DOM.notificationPanel.style.display === 'block' ? 'none' : 'block';
+            });
+            DOM.markAllRead.addEventListener('click', (e) => {
+                e.stopPropagation();
+                marcarTodasComoLeídas();
+            });
+            document.addEventListener('click', (e) => {
+                if (!DOM.notificationPanel.contains(e.target) && !DOM.notificationIcon.contains(e.target)) {
+                    DOM.notificationPanel.style.display = 'none';
+                }
+            });
+
+            // Nuevos Event Listeners para Tipos y Estados
+            DOM.agregarTipoAtencionBtn.addEventListener('click', agregarTipoAtencion);
+            DOM.selectTipoParaEstados.addEventListener('change', cargarEstadosPorTipoGestion);
+            DOM.agregarEstadoBtn.addEventListener('click', agregarEstado);
+            DOM.saveEditConfigBtn.addEventListener('click', handleSaveEditConfig);
+
+            // Filtros de la Lista de Expedientes
+            DOM.filterTipoAtencion.addEventListener('change', () => {
+                cargarFiltroEstadosExpediente(); // Recargar estados al cambiar el tipo
+                applyFilters(); // Aplicar filtros
+            });
+            DOM.filterEstadoExpediente.addEventListener('change', applyFilters);
+            
+            // Nuevo: Eventos para ordenación y filtro de Días Restantes
+            if (DOM.diasRestantesHeader) {
+                DOM.diasRestantesHeader.addEventListener('click', () => {
+                    const column = DOM.diasRestantesHeader.dataset.column;
+                    if (currentSortColumn === column) {
+                        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSortColumn = column;
+                        currentSortDirection = 'asc';
+                    }
+                    applyFilters(); // Reaplicar filtros y ordenación
+                });
             }
+
+            DOM.filterDiasRestantes.addEventListener('input', applyFilters);
+            DOM.clearDiasRestantesFilterBtn.addEventListener('click', () => {
+                DOM.filterDiasRestantes.value = '';
+                applyFilters();
+            });
+        }
+
+        /**
+         * Función auxiliar para aplicar todos los filtros y recargar la tabla.
+         */
+        function applyFilters() {
+            const searchText = DOM.searchInput.value;
+            const filterType = DOM.filterTipoAtencion.value;
+            const filterState = DOM.filterEstadoExpediente.value;
+            const filterDays = DOM.filterDiasRestantes.value === '' ? null : parseInt(DOM.filterDiasRestantes.value);
+            cargarRegistros(searchText, filterType, filterState, filterDays);
+        }
+
+        /**
+         * Maneja el envío del formulario de expedientes.
+         * @param {Event} e - Evento de submit.
+         */
+        function handleExpedienteFormSubmit(e) {
+            e.preventDefault();
             
-            // Verificar que la fecha esté dentro del período de 30 días desde el pago
-            const paydayDate = new Date(payday);
-            const expenseDateObj = new Date(date);
-            const endDate = new Date(paydayDate);
-            endDate.setDate(paydayDate.getDate() + 30);
+            const requiredFields = [
+                {id: 'numeroExpediente', name: 'Número de Expediente'},
+                {id: 'fechaLlegada', name: 'Fecha de Llegada'},
+                {id: 'razonSocial', name: 'Razón Social'},
+                {id: 'tipoAtencion', name: 'Tipo de Atención'},
+                {id: 'estadoExpediente', name: 'Estado del Expediente'}
+            ];
             
-            if (expenseDateObj < paydayDate || expenseDateObj > endDate) {
-                alert('La fecha del gasto debe estar dentro de los 30 días posteriores a tu fecha de pago');
-                return;
-            }
-            
-            // Verificar que no se supere el 80% del sueldo
-            const totalAfterExpense = calculateTotalSpent() + amount;
-            if (totalAfterExpense > salary * 0.8) {
-                if (!confirm(`¡Atención! Este gasto hará que superes tu presupuesto disponible (80% del sueldo). ¿Estás seguro de continuar?`)) {
+            for (const field of requiredFields) {
+                if (!document.getElementById(field.id).value) {
+                    mostrarNotificacion(`El campo ${field.name} es obligatorio`, 'error');
                     return;
                 }
             }
             
-            // Agregar gasto
-            expenses.push({
-                amount: Math.round(amount * 100) / 100, // Redondear a 2 decimales
-                date: date,
-                category: category,
-                description: description
-            });
+            const expedienteData = {
+                id: document.getElementById('expedienteId').value,
+                numeroExpediente: document.getElementById('numeroExpediente').value,
+                fechaLlegada: document.getElementById('fechaLlegada').value, // Ya es 'YYYY-MM-DD'
+                razonSocial: document.getElementById('razonSocial').value,
+                tipoAtencion: DOM.tipoAtencionSelect.value,
+                estadoExpediente: DOM.estadoExpedienteSelect.value,
+                observaciones: document.getElementById('observaciones').value,
+                // Obtener el plazo del CONFIG.plazosConfig
+                plazo: CONFIG.plazosConfig[DOM.tipoAtencionSelect.value]?.[DOM.estadoExpedienteSelect.value] || 0
+            };
             
-            // Guardar en localStorage
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            
-            // Limpiar formulario
-            expenseAmount.value = '';
-            expenseDescription.value = '';
-            document.getElementById('expense-date').valueAsDate = new Date();
-            
-            // Actualizar la interfaz
-            renderExpenses();
-            updateSummary();
-        });
-        
-        // Cancelar nuevo gasto
-        cancelExpenseBtn.addEventListener('click', () => {
-            expenseAmount.value = '';
-            expenseDescription.value = '';
-            document.getElementById('expense-date').valueAsDate = new Date();
-        });
-        
-        // Exportar a CSV
-        exportBtn.addEventListener('click', exportToCSV);
-        
-        // Reiniciar mes
-        resetBtn.addEventListener('click', resetMonth);
-        
-        // Cargar datos guardados al iniciar
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedSalary = localStorage.getItem('salary');
-            const savedPayday = localStorage.getItem('payday');
-            
-            if (savedSalary && savedPayday) {
-                salary = parseFloat(savedSalary);
-                payday = savedPayday;
-                
-                salaryInput.value = salary;
-                paydayInput.value = payday;
-                
-                // Cargar gastos
-                const savedExpenses = localStorage.getItem('expenses');
-                if (savedExpenses) {
-                    expenses = JSON.parse(savedExpenses);
+            if (guardarExpediente(expedienteData)) {
+                const action = expedienteEditando ? 'actualizado' : 'creado';
+                mostrarNotificacion(`Expediente ${expedienteData.numeroExpediente} ${action} correctamente`, 'success');
+                limpiarFormulario();
+                mostrarSeccion('lista');
+            } else {
+                mostrarNotificacion('Error al guardar el expediente', 'error');
+            }
+        }
+
+        /**
+         * Maneja el guardado de la edición en el modal.
+         * Esta función se encarga de renombrar tipos y estados, y actualizar las referencias en los expedientes.
+         */
+        function handleSaveEditConfig() {
+            const newValue = DOM.editConfigInput.value.trim();
+            if (!newValue) {
+                mostrarNotificacion('El nuevo nombre no puede estar vacío.', 'error');
+                return;
+            }
+
+            if (currentEditTarget.type === 'tipo') {
+                const oldKey = currentEditTarget.oldKey;
+                const newKey = newValue.toUpperCase().replace(/ /g, '_');
+
+                if (newKey === oldKey) { // No hay cambio en el nombre
+                    editConfigModalInstance.hide();
+                    return;
                 }
-                
-                // Mostrar sección de control directamente
-                setupSection.classList.add('hidden');
-                controlSection.classList.remove('hidden');
-                
-                // Configurar fecha de gasto por defecto como hoy
-                document.getElementById('expense-date').valueAsDate = new Date();
-                
-                // Actualizar la interfaz
-                updateSummary();
-                renderExpenses();
+
+                if (CONFIG.estadosPorTipo[newKey]) {
+                    mostrarNotificacion('Ya existe un tipo con este nombre.', 'error');
+                    return;
+                }
+
+                // Renombrar el tipo en estadosPorTipo
+                CONFIG.estadosPorTipo[newKey] = CONFIG.estadosPorTipo[oldKey];
+                delete CONFIG.estadosPorTipo[oldKey];
+
+                // Renombrar el tipo en plazosConfig
+                CONFIG.plazosConfig[newKey] = CONFIG.plazosConfig[oldKey];
+                delete CONFIG.plazosConfig[oldKey];
+
+                // Actualizar expedientes existentes para usar la nueva clave del tipo
+                CONFIG.expedientes.forEach(exp => {
+                    if (exp.tipoAtencion === oldKey) {
+                        exp.tipoAtencion = newKey;
+                    }
+                });
+                localStorage.setItem('expedientes', JSON.stringify(CONFIG.expedientes));
+
+                mostrarNotificacion(`Tipo de atención renombrado a "${newValue}".`, 'success');
+
+            } else if (currentEditTarget.type === 'estado') {
+                const typeKey = currentEditTarget.typeKey;
+                const oldValue = currentEditTarget.oldValue;
+                const newText = newValue;
+                const newValueKey = newText.toUpperCase().replace(/ /g, '_');
+
+                // Verificar si el nuevo valor ya existe para este tipo (excluyendo el que estamos editando)
+                if (CONFIG.estadosPorTipo[typeKey].some(s => s.value === newValueKey && s.value !== oldValue)) {
+                    mostrarNotificacion('Ya existe un estado con este nombre para el tipo seleccionado.', 'error');
+                    return;
+                }
+
+                const estadoIndex = CONFIG.estadosPorTipo[typeKey].findIndex(s => s.value === oldValue);
+                if (estadoIndex !== -1) {
+                    // Actualizar el texto y el valor del estado
+                    CONFIG.estadosPorTipo[typeKey][estadoIndex].text = newText;
+                    CONFIG.estadosPorTipo[typeKey][estadoIndex].value = newValueKey;
+
+                    // Si el valor clave del estado cambia, también actualizar en plazosConfig
+                    if (oldValue !== newValueKey) {
+                        if (CONFIG.plazosConfig[typeKey] && CONFIG.plazosConfig[typeKey][oldValue] !== undefined) {
+                            CONFIG.plazosConfig[typeKey][newValueKey] = CONFIG.plazosConfig[typeKey][oldValue];
+                            delete CONFIG.plazosConfig[typeKey][oldValue];
+                        }
+                    }
+
+                    // Actualizar expedientes existentes para usar el nuevo valor del estado
+                    CONFIG.expedientes.forEach(exp => {
+                        if (exp.tipoAtencion === typeKey && exp.estadoExpediente === oldValue) {
+                            exp.estadoExpediente = newValueKey;
+                        }
+                    });
+                    localStorage.setItem('expedientes', JSON.stringify(CONFIG.expedientes));
+
+                    mostrarNotificacion(`Estado renombrado a "${newText}".`, 'success');
+                }
             }
-            
-            // Mostrar resumen del mes anterior si existe
-            if (previousMonthData) {
-                showPreviousMonthSummary();
-            }
-        });
+
+            guardarTiposEstados();
+            guardarConfiguracionPlazos();
+            editConfigModalInstance.hide();
+            cargarTiposAtencion();
+            cargarEstadosPorTipoGestion();
+            cargarConfiguracionPlazos(); // Recargar el formulario de plazos
+            cargarTiposAtencionEnRegistro(); // Recargar el select de tipos en el formulario de registro
+            cargarEstadosPorTipo(); // Recargar el select de estados en el formulario de registro
+            cargarFiltroTiposAtencion(); // Recargar los filtros de la lista
+            cargarFiltroEstadosExpediente(); // Recargar los filtros de la lista
+            actualizarEstadisticas(); // Recalcular estadísticas
+            applyFilters(); // Recargar la lista de expedientes
+        }
+
+        // Iniciar la aplicación cuando el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
